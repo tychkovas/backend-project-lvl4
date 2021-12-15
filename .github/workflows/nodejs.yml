@@ -1,9 +1,14 @@
 name: Node CI
 
 on:
-  - push
-  - pull_request
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  
 jobs:
   build:
 
@@ -14,7 +19,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: '13.x'
+          node-version: '14.x'
       - name: npm install, build
         run: |
           make setup
