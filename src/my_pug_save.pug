@@ -1,0 +1,56 @@
+doctype html
+html.h-100(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+    meta(name='description' content='')
+    meta(name='author' content='Aleksandr T and Bootstrap contributors')
+    //- meta(name='generator' content='Hugo 0.84.0')
+    title Hexlet Fastify Boilerplate
+    link(rel='canonical' href='https://getbootstrap.com/docs/5.0/examples/cover/')
+    // Bootstrap core CSS
+    link(href='../assets/dist/css/bootstrap.min.css' rel='stylesheet')
+    style.
+      .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      user-select: none;
+      }
+      @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+      font-size: 3.5rem;
+      }
+      }
+    // Custom styles for this template
+    link(href='cover.css' rel='stylesheet')
+  body.d-flex.h-100.text-center.text-white.bg-dark
+    .cover-container.d-flex.w-100.h-100.p-3.mx-auto.flex-column
+      header.mb-auto
+        div
+          h3.float-md-start.mb-0(href='/') Fastify Шаблон
+          nav.nav.nav-masthead.justify-content-center.float-md-end
+            //- a.nav-link.active(aria-current='page' href='#') Home
+            a.nav-link(href='/users') Пользователи
+            a.nav-link(href='/session/new') Вход
+            a.nav-link(href='/users/new') Регистрация
+      main.px-3
+        h1 Привет от Хекслета!
+        p.lead
+          | Практические курсы по программированию
+        p.lead
+          a.btn.btn-lg.btn-secondary.fw-bold.border-white.bg-white(href='https://hexlet.io') Узнать Больше
+      footer.mt-auto.text-white-50
+        P
+          | Проект от 
+          a.text-white(target='_blank' href='https://ru.hexlet.io/programs/backend/projects/6') Hexlet
+          | , разработчик 
+          a.text-white(href="https://ru.hexlet.io/u/aleksandrt") @Aleksandr T
+          | .
+        p
+          | Cover template for 
+          a.text-white(href='https://getbootstrap.com/') Bootstrap
+          | , by 
+          a.text-white(href='https://twitter.com/mdo') @mdo
+          | .

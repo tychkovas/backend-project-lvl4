@@ -1,0 +1,34 @@
+doctype html
+html(lang='en')
+  head
+    title Hexlet Fastify Boilerplate
+    script(src='http://localhost:8080/assets/main.js')
+    link(href='http://localhost:8080/assets/main.css' rel='stylesheet')
+    meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+  body.d-flex.flex-column.min-vh-100
+    nav.navbar.navbar-expand-lg.navbar-light.bg-light.mb-3
+      .container-fluid
+        a.navbar-brand(href='/') Fastify Шаблон
+        button.navbar-toggler(data-bs-toggle='collapse' data-bs-target='#navbarToggleExternalContent')
+          span.navbar-toggler-icon
+        #navbarToggleExternalContent.collapse.navbar-collapse
+          .container-fluid
+            ul.navbar-nav.mr-auto
+              li.nav-item
+                a.nav-link(href='/users') Пользователи
+          ul.navbar-nav
+            li.nav-item
+              a.nav-link(href='/session/new') Вход
+            li.nav-item
+              a.nav-link(href='/users/new') Регистрация
+    .container.wrapper.flex-grow-1
+      h1.my-4
+      .card
+        .card-body.p-5.bg-light
+          .display-4 Привет от Хекслета!
+          p.lead Практические курсы по программированию
+          hr
+          a.btn.btn-primary.btn-lg(href='https://hexlet.io') Узнать Больше
+    footer
+      .container.my-5.pt-4.border-top
+        a(target='_blank' href='https://ru.hexlet.io') Hexlet
