@@ -3,6 +3,7 @@
 module.exports = {
   translation: {
     appName: 'JUST DO IT',
+    title: 'Your Task Manager',
     flash: {
       session: {
         create: {

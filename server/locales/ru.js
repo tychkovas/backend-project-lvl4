@@ -3,6 +3,7 @@
 module.exports = {
   translation: {
     appName: 'JUST DO IT',
+    title: 'Твой Менеджер Задач',
     flash: {
       session: {
         create: {
