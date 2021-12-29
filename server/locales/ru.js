@@ -2,7 +2,7 @@
 
 module.exports = {
   translation: {
-    appName: 'Fastify Шаблон',
+    appName: 'JUST DO IT',
     flash: {
       session: {
         create: {
@@ -48,8 +48,8 @@ module.exports = {
       },
       welcome: {
         index: {
-          hello: 'Привет от Хекслета!',
-          description: 'Практические курсы по программированию',
+          hello: 'Привет это Ваш Менеджер задач "JUST DO IT"!',
+          description: 'Проект по программированию от Хекслета!',
           more: 'Узнать Больше',
         },
       },
