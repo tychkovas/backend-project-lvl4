@@ -23,6 +23,7 @@ module.exports = {
     },
     layouts: {
       application: {
+        home: 'Главная',
         users: 'Пользователи',
         signIn: 'Вход',
         signUp: 'Регистрация',
