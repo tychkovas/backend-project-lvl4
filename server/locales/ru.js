@@ -8,7 +8,7 @@ module.exports = {
       session: {
         create: {
           success: 'Вы залогинены',
-          error: 'Неправильный емейл или пароль',
+          error: 'Неправильный имейл или пароль',
         },
         delete: {
           success: 'Вы разлогинены',
