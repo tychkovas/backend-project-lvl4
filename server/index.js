@@ -18,6 +18,7 @@ import qs from 'qs';
 import Pug from 'pug';
 import i18next from 'i18next';
 import ru from './locales/ru.js';
+import en from './locales/en.js';
 // @ts-ignore
 import webpackConfig from '../webpack.config.babel.js';
 
@@ -71,6 +72,7 @@ const setupLocalization = () => {
       fallbackLng: 'en',
       debug: isDevelopment,
       resources: {
+        en,
         ru,
       },
     });

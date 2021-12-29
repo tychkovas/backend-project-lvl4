@@ -2,12 +2,13 @@
 
 module.exports = {
   translation: {
-    appName: 'Fastify Шаблон',
+    appName: 'JUST DO IT',
+    title: 'Твой Менеджер Задач',
     flash: {
       session: {
         create: {
           success: 'Вы залогинены',
-          error: 'Неправильный емейл или пароль',
+          error: 'Неправильный имейл или пароль',
         },
         delete: {
           success: 'Вы разлогинены',
@@ -23,6 +24,7 @@ module.exports = {
     },
     layouts: {
       application: {
+        home: 'Главная',
         users: 'Пользователи',
         signIn: 'Вход',
         signUp: 'Регистрация',
@@ -47,8 +49,8 @@ module.exports = {
       },
       welcome: {
         index: {
-          hello: 'Привет от Хекслета!',
-          description: 'Практические курсы по программированию',
+          hello: 'Привет это Ваш Менеджер задач "JUST DO IT"!',
+          description: 'Проект по программированию от Хекслета!',
           more: 'Узнать Больше',
         },
       },
