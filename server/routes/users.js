@@ -6,6 +6,10 @@ export default (app) => {
   app
     .get('/users', { name: 'users' }, async (req, reply) => {
       const users = await app.objection.models.user.query();
+
+      Object.entries(users).forEach(([key1, value]) => {
+        req.log.info(`user: ${key1}: ${value.email}: ${value.fullName()}, ${value.firstName}`);
+      });
       reply.render('users/index', { users });
       return reply;
     })

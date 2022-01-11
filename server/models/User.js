@@ -1,6 +1,7 @@
 // @ts-check
 
 import { Model } from 'objection';
+// @ts-ignore
 import objectionUnique from 'objection-unique';
 
 import encrypt from '../lib/secure.js';
@@ -8,10 +9,17 @@ import encrypt from '../lib/secure.js';
 const unique = objectionUnique({ fields: ['email'] });
 
 export default class User extends unique(Model) {
+  // @ts-ignore
   static get tableName() {
     return 'users';
   }
 
+  fullName() {
+    return `${this.firstName} - ${this.lastName}`;
+    // return this.firstName + ' ' + this.lastName;
+  }
+
+  // @ts-ignore
   static get jsonSchema() {
     return {
       type: 'object',
@@ -26,6 +34,7 @@ export default class User extends unique(Model) {
     };
   }
 
+  // @ts-ignore
   set password(value) {
     this.passwordDigest = encrypt(value);
   }
