@@ -29,9 +29,11 @@ import models from './models/index.js';
 import FormStrategy from './lib/passportStrategies/FormStrategy.js';
 
 dotenv.config();
+console.log('-! dotenv', dotenv.config());
 const mode = process.env.NODE_ENV || 'development';
 const isProduction = mode === 'production';
 const isDevelopment = mode === 'development';
+console.info('-! isDevelopment', isDevelopment);
 
 const setUpViews = (app) => {
   const { devServer } = webpackConfig;
