@@ -40,6 +40,9 @@ module.exports = {
       },
       users: {
         id: 'ID',
+        firstName: 'First name',
+        lastName: 'Last name',
+        fullName: 'Name',
         email: 'Email',
         createdAt: 'Creation date',
         new: {
