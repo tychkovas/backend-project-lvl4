@@ -37,5 +37,51 @@ export default (app) => {
         reply.render('users/new', { user: req.body.data, errors: data });
         return reply;
       }
+    })
+    .get('/users/:id/edit', { name: 'openForEditUser' }, async (req, reply) => {
+      const id = req.params?.id;
+      try {
+        req.log.info(`/users edit id = ${id}`);
+        const user = await app.objection.models.user.query().findById(id);
+        req.log.info(`/users edit user = ${JSON.stringify(user)}`);
+        if (!user) throw new Error('User not defined');
+
+        reply.render('users/edit', { user });
+        return reply;
+      } catch ({ data }) {
+        req.log.error(` /users/:id/ error = ${data}`);
+
+        req.flash('error', i18next.t('flash.users.edit.error'));
+        reply.redirect('/users');
+        return reply;
+      }
+    })
+    //
+    .patch('/users/:id', { name: 'editUser' }, async (req, reply) => {
+      const { id } = req.params;
+      req.log.info(`/users patch:  id = ${id}`);
+      try {
+        const user = await app.objection.models.user.fromJson(req.body.data);
+
+        req.log.info(`/users patch data email: ${user.email}`);
+        req.log.info(`/users patch data : ${JSON.stringify(user)}`);
+
+        const userUpdated = await app.objection.models.user.query()
+          .findById(id);
+
+        await userUpdated.$query().update(req.body.data);
+        req.log.info(`/users update OK : ${JSON.stringify(userUpdated)}`);
+        req.log.info('/users patch: success');
+
+        req.flash('info', i18next.t('flash.users.edit.success'));
+        reply.redirect(app.reverse('root'));
+        return reply;
+      } catch ({ data }) {
+        req.log.info(`/users patch: fail. data = ${data}`);
+
+        req.flash('error', i18next.t('flash.users.edit.error'));
+        reply.render('users/edit', { user: { ...req.body.data, curId: id }, errors: data });
+        return reply;
+      }
     });
 };

@@ -8,6 +8,7 @@ block content
         th= t('views.users.fullName')
         th= t('views.users.email')
         th= t('views.users.createdAt')
+        th
     tbody
       each user in users
         tr
@@ -15,3 +16,5 @@ block content
           td= user.fullName()
           td= user.email
           td= formatDate(user.createdAt)
+          td
+            a(href=`/users/${user.id}/edit`)= t('views.users.actions.edit')
