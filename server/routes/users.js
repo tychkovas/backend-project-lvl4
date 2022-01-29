@@ -56,7 +56,6 @@ export default (app) => {
         return reply;
       }
     })
-    //
     .patch('/users/:id', { name: 'editUser' }, async (req, reply) => {
       const { id } = req.params;
       req.log.info(`/users patch:  id = ${id}`);
@@ -73,7 +72,7 @@ export default (app) => {
         req.log.info(`/users update OK : ${JSON.stringify(userUpdated)}`);
         req.log.info('/users patch: success');
 
-        req.flash('info', i18next.t('flash.users.edit.success'));
+        req.flash('success', i18next.t('flash.users.edit.success'));
         reply.redirect(app.reverse('root'));
         return reply;
       } catch ({ data }) {
@@ -81,6 +80,28 @@ export default (app) => {
 
         req.flash('error', i18next.t('flash.users.edit.error'));
         reply.render('users/edit', { user: { ...req.body.data, curId: id }, errors: data });
+        return reply;
+      }
+    })
+    .delete('/users/:id', async (req, reply) => {
+      const id = req.params?.id;
+      try {
+        const idDeleted = await app.objection.models.user.query()
+          .deleteById(id);
+
+        req.log.info(`/users delete: id = ${idDeleted}`);
+
+        req.logOut();
+
+        req.log.info('/users delete: logOut');
+
+        req.flash('success', i18next.t('flash.users.delete.success'));
+        reply.redirect(app.reverse('users'));
+        return reply;
+      } catch ({ data }) {
+        req.flash('error', i18next.t('flash.users.delete.error'));
+        req.log.error(`/users delete: fail id = ${id}`);
+        reply.redirect(app.reverse('users'));
         return reply;
       }
     });
