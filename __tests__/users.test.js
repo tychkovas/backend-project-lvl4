@@ -62,6 +62,30 @@ describe('test users CRUD', () => {
     expect(user).toMatchObject(expected);
   });
 
+  it('update', async () => {
+    const params = testData.users.updated;
+    const response = await app.inject({
+      method: 'PATCH',
+      // url: app.reverse('updateUser'),
+      url: '/users/1',
+      payload: {
+        data: params,
+      },
+      // TODO cookies
+    });
+
+    expect(response.statusCode).toBe(302);
+    const expected = {
+      ..._.omit(params, 'password'),
+      passwordDigest: encrypt(params.password),
+    };
+    const user = await models.user.query().findOne({ email: params.email });
+    expect(user).toMatchObject(expected);
+
+    const users = await models.user.query();
+    console.log('All users', JSON.stringify(users));
+  });
+
   afterEach(async () => {
     // после каждого теста откатываем миграции
     await knex.migrate.rollback();

@@ -1,7 +1,9 @@
 [
   {
     "email": "elbert_abshire52@gmail.com",
-    "passwordDigest": "5f9b60f2fdeefeb82add76f9acfe629e2844987d245c9f07005dda1e1316c3f6"
+    "passwordDigest": "5f9b60f2fdeefeb82add76f9acfe629e2844987d245c9f07005dda1e1316c3f6",
+    "firstName": "elbert",
+    "lastName": "abshire"
   },
   {
     "email": "lawrence.kulas87@outlook.com",
@@ -11,6 +13,8 @@
   },
   {
     "email": "nona_murray@yahoo.com",
-    "passwordDigest": "760391e7dceb3cf65ee23e97ca3db8c1515d18c3434b003c1fd781053afcf86f"
+    "passwordDigest": "760391e7dceb3cf65ee23e97ca3db8c1515d18c3434b003c1fd781053afcf86f",
+    "firstName": "nona",
+    "lastName": "murray"
   }
 ]

@@ -56,7 +56,7 @@ export default (app) => {
         return reply;
       }
     })
-    .patch('/users/:id', { name: 'editUser' }, async (req, reply) => {
+    .patch('/users/:id', { name: 'updateUser' }, async (req, reply) => {
       const { id } = req.params;
       req.log.info(`/users patch:  id = ${id}`);
       try {
