@@ -6,17 +6,17 @@
       "firstName": "malika",
       "lastName": "hodkiewicz"
     },
-    "updated": {
-      "email": "elbert_abshire52@gmail.com",
-      "password": "1123456",
-      "firstName": "Elbert",
-      "lastName": "Abshire52"
-    },
     "existing": {
       "email": "lawrence.kulas87@outlook.com",
       "password": "O6AvLIQL1cbzrre",
       "firstName": "lawrence",
       "lastName": "kulas"
+    },
+    "updated": {
+      "email": "lawrence.kulas87@yandex.com",
+      "password": "newPassword",
+      "firstName": "Lawrence",
+      "lastName": "Kulas"
     }
   }
 }

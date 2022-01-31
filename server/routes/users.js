@@ -73,7 +73,7 @@ export default (app) => {
         req.log.info('/users patch: success');
 
         req.flash('success', i18next.t('flash.users.edit.success'));
-        reply.redirect(app.reverse('root'));
+        reply.redirect(app.reverse('users'));
         return reply;
       } catch ({ data }) {
         req.log.info(`/users patch: fail. data = ${data}`);
