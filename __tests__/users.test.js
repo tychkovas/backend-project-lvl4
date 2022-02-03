@@ -86,36 +86,49 @@ describe('test users CRUD', () => {
     expect(user).toMatchObject(expected);
   });
 
-  it('update', async () => {
-    const paramsExistingUserToUpdate = testData.users.existing;
-    const cookie = await signInUserAndGetCookie(paramsExistingUserToUpdate);
-    const id = await getIdExistingUser(paramsExistingUserToUpdate);
+  describe('update', () => {
+    it('U success', async () => {
+      const paramsExistingUserToUpdate = testData.users.existing;
+      const cookie = await signInUserAndGetCookie(paramsExistingUserToUpdate);
+      const id = await getIdExistingUser(paramsExistingUserToUpdate);
 
-    const paramsUpdated = testData.users.updated;
-    const response = await app.inject({
-      method: 'PATCH',
-      // url: app.reverse('updateUser'),
-      url: `/users/${id}`,
-      payload: {
-        data: paramsUpdated,
-      },
-      cookies: cookie,
+      const paramsUpdated = testData.users.updated;
+      const response = await app.inject({
+        method: 'PATCH',
+        // url: app.reverse('updateUser'),
+        url: `/users/${id}`,
+        payload: {
+          data: paramsUpdated,
+        },
+        cookies: cookie,
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe('/users');
+
+      const expected = {
+        ..._.omit(paramsUpdated, 'password'),
+        passwordDigest: encrypt(paramsUpdated.password),
+      };
+      const user = await models.user.query()
+        .findOne({ email: paramsUpdated.email });
+      expect(user).toMatchObject(expected);
+
+      const nonEistentUser = await models.user.query()
+        .findOne({ email: paramsExistingUserToUpdate.email });
+      expect(nonEistentUser).toBeUndefined();
+
+      const [sessionCookie] = response.cookies;
+      const { name, value } = sessionCookie;
+      const cookieRedirect = { [name]: value };
+
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: app.reverse('users'),
+        cookies: cookieRedirect,
+      });
+      expect(responseRedirect.statusCode).toBe(200);
     });
-
-    expect(response.statusCode).toBe(302);
-    expect(response.headers.location).toBe('/users');
-
-    const expected = {
-      ..._.omit(paramsUpdated, 'password'),
-      passwordDigest: encrypt(paramsUpdated.password),
-    };
-    const user = await models.user.query()
-      .findOne({ email: paramsUpdated.email });
-    expect(user).toMatchObject(expected);
-
-    const nonEistentUser = await models.user.query()
-      .findOne({ email: paramsExistingUserToUpdate.email });
-    expect(nonEistentUser).toBeUndefined();
   });
 
   it('delete', async () => {
