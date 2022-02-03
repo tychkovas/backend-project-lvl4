@@ -118,6 +118,26 @@ describe('test users CRUD', () => {
     expect(nonEistentUser).toBeUndefined();
   });
 
+  it('delete', async () => {
+    const paramsExistingUserToUpdate = testData.users.existing;
+    const cookie = await signInUserAndGetCookie(paramsExistingUserToUpdate);
+    const id = await getIdExistingUser(paramsExistingUserToUpdate);
+
+    const response = await app.inject({
+      method: 'DELETE',
+      // url: app.reverse('updateUser'),
+      url: `/users/${id}`,
+      cookies: cookie,
+    });
+
+    expect(response.statusCode).toBe(302);
+    expect(response.headers.location).toBe('/users');
+
+    const nonEistentUser = await models.user.query()
+      .findOne({ email: paramsExistingUserToUpdate.email });
+    expect(nonEistentUser).toBeUndefined();
+  });
+
   afterEach(async () => {
     // после каждого теста откатываем миграции
     await knex.migrate.rollback();
