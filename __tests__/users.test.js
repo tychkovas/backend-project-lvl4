@@ -127,6 +127,45 @@ describe('test users CRUD', () => {
       });
       expect(responseRedirect.statusCode).toBe(200);
     });
+
+    it('U fail', async () => {
+      const responseOpen = await app.inject({
+        method: 'GET',
+        url: app.reverse('users'),
+      });
+
+      expect(responseOpen.statusCode).toBe(200);
+      const cookie = getCookie(responseOpen);
+
+      const paramsExistingUserToUpdate = testData.users.existing;
+      const id = await getIdExistingUser(paramsExistingUserToUpdate);
+
+      const paramsUpdated = testData.users.updated;
+      const response = await app.inject({
+        method: 'PATCH',
+        // url: app.reverse('updateUser'),
+        url: `/users/${id}`,
+        payload: {
+          data: paramsUpdated,
+        },
+        cookies: cookie,
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('users'));
+
+      const expected = {
+        ..._.omit(paramsExistingUserToUpdate, 'password'),
+        passwordDigest: encrypt(paramsExistingUserToUpdate.password),
+      };
+      const user = await models.user.query()
+        .findOne({ email: paramsExistingUserToUpdate.email });
+      expect(user).toMatchObject(expected);
+
+      const nonEistentUser = await models.user.query()
+        .findOne({ email: paramsUpdated.email });
+      expect(nonEistentUser).toBeUndefined();
+    });
   });
 
   it('delete', async () => {
