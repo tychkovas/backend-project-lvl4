@@ -106,7 +106,7 @@ describe('test users CRUD', () => {
       });
 
       expect(response.statusCode).toBe(302);
-      expect(response.headers.location).toBe('/users');
+      expect(response.headers.location).toBe(app.reverse('users'));
 
       const expected = {
         ..._.omit(paramsUpdated, 'password'),
@@ -120,14 +120,10 @@ describe('test users CRUD', () => {
         .findOne({ email: paramsExistingUserToUpdate.email });
       expect(nonEistentUser).toBeUndefined();
 
-      const [sessionCookie] = response.cookies;
-      const { name, value } = sessionCookie;
-      const cookieRedirect = { [name]: value };
-
       const responseRedirect = await app.inject({
         method: 'GET',
         url: app.reverse('users'),
-        cookies: cookieRedirect,
+        cookies: getCookie(response),
       });
       expect(responseRedirect.statusCode).toBe(200);
     });
@@ -146,7 +142,7 @@ describe('test users CRUD', () => {
     });
 
     expect(response.statusCode).toBe(302);
-    expect(response.headers.location).toBe('/users');
+    expect(response.headers.location).toBe(app.reverse('users'));
 
     const nonEistentUser = await models.user.query()
       .findOne({ email: paramsExistingUserToUpdate.email });
