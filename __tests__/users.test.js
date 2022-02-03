@@ -11,6 +11,30 @@ describe('test users CRUD', () => {
   let models;
   const testData = getTestData();
 
+  const signInUserAndGetCookie = async (params) => {
+    const responseSignIn = await app.inject({
+      method: 'POST',
+      url: app.reverse('session'),
+      payload: {
+        data: params,
+      },
+    });
+
+    expect(responseSignIn.statusCode).toBe(302);
+
+    const [sessionCookie] = responseSignIn.cookies;
+    const { name, value } = sessionCookie;
+    const cookie = { [name]: value };
+
+    return cookie;
+  };
+
+  const getIdExistingUser = async (params) => {
+    const existingUser = await models.user.query().findOne({ email: params.email });
+    expect(existingUser).toBeDefined();
+    return existingUser?.id;
+  };
+
   beforeAll(async () => {
     app = await getApp();
     knex = app.objection.knex;
@@ -63,27 +87,35 @@ describe('test users CRUD', () => {
   });
 
   it('update', async () => {
-    const params = testData.users.updated;
+    const paramsExistingUserToUpdate = testData.users.existing;
+    const cookie = await signInUserAndGetCookie(paramsExistingUserToUpdate);
+    const id = await getIdExistingUser(paramsExistingUserToUpdate);
+
+    const paramsUpdated = testData.users.updated;
     const response = await app.inject({
       method: 'PATCH',
       // url: app.reverse('updateUser'),
-      url: '/users/1',
+      url: `/users/${id}`,
       payload: {
-        data: params,
+        data: paramsUpdated,
       },
-      // TODO cookies
+      cookies: cookie,
     });
 
     expect(response.statusCode).toBe(302);
+    expect(response.headers.location).toBe('/users');
+
     const expected = {
-      ..._.omit(params, 'password'),
-      passwordDigest: encrypt(params.password),
+      ..._.omit(paramsUpdated, 'password'),
+      passwordDigest: encrypt(paramsUpdated.password),
     };
-    const user = await models.user.query().findOne({ email: params.email });
+    const user = await models.user.query()
+      .findOne({ email: paramsUpdated.email });
     expect(user).toMatchObject(expected);
 
-    const users = await models.user.query();
-    console.log('All users', JSON.stringify(users));
+    const nonEistentUser = await models.user.query()
+      .findOne({ email: paramsExistingUserToUpdate.email });
+    expect(nonEistentUser).toBeUndefined();
   });
 
   afterEach(async () => {
