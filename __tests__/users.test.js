@@ -11,18 +11,20 @@ describe('test users CRUD', () => {
   let models;
   const testData = getTestData();
 
-  const signInUserAndGetCookie = async (params) => {
-    const responseSignIn = await app.inject({
+  const signIn = async (params) => {
+    const response = await app.inject({
       method: 'POST',
       url: app.reverse('session'),
-      payload: {
-        data: params,
-      },
+      payload: { data: params },
     });
 
-    expect(responseSignIn.statusCode).toBe(302);
+    expect(response.statusCode).toBe(302);
 
-    const [sessionCookie] = responseSignIn.cookies;
+    return response;
+  };
+
+  const getCookie = (response) => {
+    const [sessionCookie] = response.cookies;
     const { name, value } = sessionCookie;
     const cookie = { [name]: value };
 
@@ -89,7 +91,7 @@ describe('test users CRUD', () => {
   describe('update', () => {
     it('U success', async () => {
       const paramsExistingUserToUpdate = testData.users.existing;
-      const cookie = await signInUserAndGetCookie(paramsExistingUserToUpdate);
+      const cookie = getCookie(await signIn(paramsExistingUserToUpdate));
       const id = await getIdExistingUser(paramsExistingUserToUpdate);
 
       const paramsUpdated = testData.users.updated;
@@ -133,7 +135,7 @@ describe('test users CRUD', () => {
 
   it('delete', async () => {
     const paramsExistingUserToUpdate = testData.users.existing;
-    const cookie = await signInUserAndGetCookie(paramsExistingUserToUpdate);
+    const cookie = getCookie(await signIn(paramsExistingUserToUpdate));
     const id = await getIdExistingUser(paramsExistingUserToUpdate);
 
     const response = await app.inject({
