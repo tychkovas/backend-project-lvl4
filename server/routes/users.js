@@ -20,15 +20,11 @@ export default (app) => {
     .post('/users', async (req, reply) => {
       try {
         const user = await app.objection.models.user.fromJson(req.body.data);
-
         req.log.info(`/users post: ${user.email}, ${user.firstName}`);
-
-        Object.entries(user).forEach(([key1, value]) => {
-          req.log.info(` - user: ${key1}: ${value} `);
-        });
 
         await app.objection.models.user.query().insert(user);
         req.log.info('/users post: success');
+
         req.flash('info', i18next.t('flash.users.create.success'));
         reply.redirect(app.reverse('root'));
         return reply;
