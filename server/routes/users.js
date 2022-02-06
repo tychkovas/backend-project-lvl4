@@ -68,7 +68,7 @@ export default (app) => {
         req.log.info(`/users update OK : ${JSON.stringify(userUpdated)}`);
         req.log.info('/users patch: success');
 
-        req.flash('success', i18next.t('flash.users.edit.success'));
+        req.flash('info', i18next.t('flash.users.edit.success'));
         reply.redirect(app.reverse('users'));
         return reply;
       } catch ({ data }) {
