@@ -36,6 +36,15 @@ export default (app) => {
     })
     .get('/users/:id/edit', { name: 'openForEditUser' }, async (req, reply) => {
       const id = req.params?.id;
+      const cookieId = req.session.get('userId');
+      if (Number(id) !== cookieId || !cookieId) {
+        req.log.error(` /users/:id/ error session = ${cookieId}`);
+        //  <div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>
+        req.flash('error', i18next.t('flash.authError'));
+        reply.redirect('/');
+        return reply;
+      }
+      req.log.info(`/users edit cookieId = ${cookieId}`);
       try {
         req.log.info(`/users edit id = ${id}`);
         const user = await app.objection.models.user.query().findById(id);
