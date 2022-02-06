@@ -148,17 +148,30 @@ describe('test users CRUD', () => {
     });
 
     // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('U fail', async () => {
+    it('U fail', async () => {
       const responseOpen = await app.inject({
         method: 'GET',
         url: app.reverse('users'),
       });
 
       expect(responseOpen.statusCode).toBe(200);
-      const cookie = getCookie(responseOpen);
+      // TO DO : проверить наличие пользователя на странице
 
       const paramsExistingUserToUpdate = testData.users.existing;
       const id = await getIdExistingUser(paramsExistingUserToUpdate);
+
+      const responseEditUser = await app.inject({
+        method: 'GET',
+        url: `/users/${id}/edit`,
+        cookies: getCookie(responseOpen),
+      });
+
+      expect(responseEditUser.statusCode).toBe(302);
+      // <div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>
+      expect(responseEditUser.body)
+        .toContain('<div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>');
+      expect(responseEditUser.body).toContain(i18next.t('flash.session.create.error'));
+      expect(responseOpen.headers.location).toBe(app.reverse('root'));
 
       const paramsUpdated = testData.users.updated;
       const response = await app.inject({
@@ -168,7 +181,7 @@ describe('test users CRUD', () => {
         payload: {
           data: paramsUpdated,
         },
-        cookies: cookie,
+        cookies: getCookie(responseEditUser),
       });
 
       expect(response.statusCode).toBe(302);
