@@ -168,13 +168,20 @@ describe('test users CRUD', () => {
 
       expect(responseEditUser.statusCode).toBe(302);
       // <div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>
-      expect(responseEditUser.body)
+      expect(responseEditUser.headers.location).toBe(app.reverse('root'));
+
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: responseEditUser.headers.location,
+        cookies: getCookie(responseEditUser),
+      });
+
+      expect(responseRedirect.body)
         .toContain('<div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>');
-      expect(responseEditUser.body).toContain(i18next.t('flash.session.create.error'));
-      expect(responseOpen.headers.location).toBe(app.reverse('root'));
+      expect(responseRedirect.body).toContain(i18next.t('flash.authError'));
 
       const paramsUpdated = testData.users.updated;
-      const response = await app.inject({
+      const responsePatch = await app.inject({
         method: 'PATCH',
         // url: app.reverse('updateUser'),
         url: `/users/${id}`,
@@ -184,8 +191,8 @@ describe('test users CRUD', () => {
         cookies: getCookie(responseEditUser),
       });
 
-      expect(response.statusCode).toBe(302);
-      expect(response.headers.location).toBe(app.reverse('users'));
+      expect(responsePatch.statusCode).toBe(302);
+      expect(responsePatch.headers.location).toBe(app.reverse('root'));
 
       const expected = {
         ..._.omit(paramsExistingUserToUpdate, 'password'),
@@ -198,6 +205,16 @@ describe('test users CRUD', () => {
       const nonEistentUser = await models.user.query()
         .findOne({ email: paramsUpdated.email });
       expect(nonEistentUser).toBeUndefined();
+
+      const responseRedirect2 = await app.inject({
+        method: 'GET',
+        url: responseEditUser.headers.location,
+        cookies: getCookie(responsePatch),
+      });
+
+      expect(responseRedirect2.body)
+        .toContain('<div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>');
+      expect(responseRedirect2.body).toContain(i18next.t('flash.authError'));
     });
   });
 
