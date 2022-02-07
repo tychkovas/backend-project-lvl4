@@ -93,8 +93,10 @@ describe('test users CRUD', () => {
     it('U success', async () => {
       const paramsExistingUserToUpdate = testData.users.existing;
       const responseSignIn = await signIn(paramsExistingUserToUpdate);
+
       expect(responseSignIn.statusCode).toBe(302);
       expect(responseSignIn.headers.location).toBe(app.reverse('root'));
+
       const cookie = getCookie(responseSignIn);
       const id = await getIdExistingUser(paramsExistingUserToUpdate);
 
@@ -108,7 +110,6 @@ describe('test users CRUD', () => {
       // 'Вы залогинены'
       expect(responseEditUser.body).toContain('<div class="alert alert-success">Вы залогинены</div>');
       expect(responseEditUser.body).toContain(i18next.t('flash.session.create.success'));
-      // expect(responseOpen.headers.location).toBe(`/users/${id}/edit`);
 
       const paramsUpdated = testData.users.updated;
       const response = await app.inject({
@@ -136,6 +137,7 @@ describe('test users CRUD', () => {
         .findOne({ email: paramsExistingUserToUpdate.email });
       expect(nonEistentUser).toBeUndefined();
 
+      // провека наличия флэш-сообщения
       const responseRedirect = await app.inject({
         method: 'GET',
         url: app.reverse('users'),
@@ -148,7 +150,7 @@ describe('test users CRUD', () => {
     });
 
     // eslint-disable-next-line jest/no-disabled-tests
-    it('U fail', async () => {
+    it('U get fail', async () => {
       const responseOpen = await app.inject({
         method: 'GET',
         url: app.reverse('users'),
@@ -167,9 +169,9 @@ describe('test users CRUD', () => {
       });
 
       expect(responseEditUser.statusCode).toBe(302);
-      // <div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>
       expect(responseEditUser.headers.location).toBe(app.reverse('root'));
 
+      // провека наличия флэш-сообщения
       const responseRedirect = await app.inject({
         method: 'GET',
         url: responseEditUser.headers.location,
@@ -179,16 +181,19 @@ describe('test users CRUD', () => {
       expect(responseRedirect.body)
         .toContain('<div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>');
       expect(responseRedirect.body).toContain(i18next.t('flash.authError'));
+    });
+
+    it('U patch fail', async () => {
+      const paramsExistingUserToUpdate = testData.users.existing;
+      const id = await getIdExistingUser(paramsExistingUserToUpdate);
 
       const paramsUpdated = testData.users.updated;
       const responsePatch = await app.inject({
         method: 'PATCH',
-        // url: app.reverse('updateUser'),
         url: `/users/${id}`,
         payload: {
           data: paramsUpdated,
         },
-        cookies: getCookie(responseEditUser),
       });
 
       expect(responsePatch.statusCode).toBe(302);
@@ -206,15 +211,16 @@ describe('test users CRUD', () => {
         .findOne({ email: paramsUpdated.email });
       expect(nonEistentUser).toBeUndefined();
 
-      const responseRedirect2 = await app.inject({
+      // провека наличия флэш-сообщения
+      const responseRedirect = await app.inject({
         method: 'GET',
-        url: responseEditUser.headers.location,
+        url: responsePatch.headers.location,
         cookies: getCookie(responsePatch),
       });
 
-      expect(responseRedirect2.body)
+      expect(responseRedirect.body)
         .toContain('<div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>');
-      expect(responseRedirect2.body).toContain(i18next.t('flash.authError'));
+      expect(responseRedirect.body).toContain(i18next.t('flash.authError'));
     });
   });
 
