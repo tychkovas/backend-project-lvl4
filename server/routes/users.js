@@ -35,10 +35,10 @@ export default (app) => {
       }
     })
     .get('/users/:id/edit', { name: 'openForEditUser' }, async (req, reply) => {
-      const id = req.params?.id;
+      const id = Number(req.params?.id);
       const cookieId = req.session.get('userId');
-      if (Number(id) !== cookieId || !cookieId) {
-        req.log.error(` /users/:id/ error session = ${cookieId}`);
+      if (!cookieId || (id !== cookieId)) {
+        req.log.error(` /users/:id/edit error session = ${cookieId}`);
         //  <div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>
         req.flash('error', i18next.t('flash.authError'));
         reply.redirect('/');
@@ -51,10 +51,11 @@ export default (app) => {
         req.log.info(`/users edit user = ${JSON.stringify(user)}`);
         if (!user) throw new Error('User not defined');
 
+        req.log.info(`/users edit id = ${id} render`);
         reply.render('users/edit', { user });
         return reply;
       } catch ({ data }) {
-        req.log.error(` /users/:id/ error = ${data}`);
+        req.log.error(` /users/:id/edit error = ${data}`);
 
         req.flash('error', i18next.t('flash.users.edit.error'));
         reply.redirect('/users');
@@ -62,8 +63,17 @@ export default (app) => {
       }
     })
     .patch('/users/:id', { name: 'updateUser' }, async (req, reply) => {
-      const { id } = req.params;
+      const id = Number(req.params?.id);
+      const cookieId = req.session.get('userId');
       req.log.info(`/users patch:  id = ${id}`);
+      if (!cookieId || (id !== cookieId)) {
+        req.log.error(` patch error session = ${cookieId}`);
+        //  <div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>
+        req.flash('error', i18next.t('flash.authError'));
+        reply.redirect('/');
+        return reply;
+      }
+
       try {
         const user = await app.objection.models.user.fromJson(req.body.data);
 
@@ -89,7 +99,17 @@ export default (app) => {
       }
     })
     .delete('/users/:id', async (req, reply) => {
-      const id = req.params?.id;
+      const id = Number(req.params?.id);
+      const cookieId = req.session.get('userId');
+      req.log.info(`/users patch:  id = ${id}`);
+      if (!cookieId || (id !== cookieId)) {
+        req.log.error(` delete error session = ${cookieId}`);
+        //  <div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>
+        req.flash('error', i18next.t('flash.authError'));
+        reply.redirect('/');
+        return reply;
+      }
+
       try {
         const idDeleted = await app.objection.models.user.query()
           .deleteById(id);
