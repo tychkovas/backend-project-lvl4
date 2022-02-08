@@ -351,7 +351,7 @@ describe('test users CRUD', () => {
       });
 
       // Вы не можете редактировать или удалять другого пользователя
-      expect(responseRedirect.body).toContain(i18next.t('flash.users.authError'));
+      expect(responseRedirect.body).toContain(i18next.t('flash.users.accessError'));
       expect(responseRedirect.body)
         .toContain('<div class="alert alert-danger">Вы не можете редактировать или удалять другого пользователя</div>');
     });

@@ -102,11 +102,21 @@ export default (app) => {
       const id = Number(req.params?.id);
       const cookieId = req.session.get('userId');
       req.log.info(`/users patch:  id = ${id}`);
-      if (!cookieId || (id !== cookieId)) {
+      // authentication (registration) check
+      if (!cookieId) {
         req.log.error(` delete error session = ${cookieId}`);
-        //  <div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>
+        // <div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>
         req.flash('error', i18next.t('flash.authError'));
-        reply.redirect('/');
+        reply.redirect(app.reverse('root'));
+        return reply;
+      }
+      // access check
+      if ((id !== cookieId)) {
+        req.log.error(` delete error cookieId = ${cookieId}`);
+        // eslint-disable-next-line max-len
+        // <div class="alert alert-danger">Вы не можете редактировать или удалять другого пользователя</div>
+        req.flash('error', i18next.t('flash.users.accessError'));
+        reply.redirect(app.reverse('users'));
         return reply;
       }
 
