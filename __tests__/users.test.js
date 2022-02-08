@@ -224,24 +224,137 @@ describe('test users CRUD', () => {
     });
   });
 
-  it('delete', async () => {
-    const paramsExistingUserToUpdate = testData.users.existing;
-    const cookie = getCookie(await signIn(paramsExistingUserToUpdate));
-    const id = await getIdExistingUser(paramsExistingUserToUpdate);
+  describe('delete', () => {
+    it('D success', async () => {
+      const paramsExistingUserToUpdate = testData.users.existing;
+      const responseSignIn = await signIn(paramsExistingUserToUpdate);
 
-    const response = await app.inject({
-      method: 'DELETE',
-      // url: app.reverse('updateUser'),
-      url: `/users/${id}`,
-      cookies: cookie,
+      expect(responseSignIn.statusCode).toBe(302);
+      expect(responseSignIn.headers.location).toBe(app.reverse('root'));
+
+      const cookie = getCookie(responseSignIn);
+      const id = await getIdExistingUser(paramsExistingUserToUpdate);
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/users/${id}`,
+        cookies: cookie,
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('users'));
+
+      const nonEistentUser = await models.user.query()
+        .findOne({ email: paramsExistingUserToUpdate.email });
+      expect(nonEistentUser).toBeUndefined();
+
+      // провека наличия флэш-сообщения
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: response.headers.location,
+        cookies: getCookie(response),
+      });
+
+      // '>Пользователь успешно удалён'
+      expect(responseRedirect.body).toContain(i18next.t('flash.users.delete.success'));
+      expect(responseRedirect.body).toContain('<div class="alert alert-success">Пользователь успешно удалён</div>');
+    });
+    it('D unlogged user fail', async () => {
+      const paramsExistingUserToUpdate = testData.users.existing;
+      const id = await getIdExistingUser(paramsExistingUserToUpdate);
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/users/${id}`,
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('root'));
+
+      const expected = {
+        ..._.omit(paramsExistingUserToUpdate, 'password'),
+        passwordDigest: encrypt(paramsExistingUserToUpdate.password),
+      };
+      const user = await models.user.query()
+        .findOne({ email: paramsExistingUserToUpdate.email });
+      expect(user).toMatchObject(expected);
+
+      // провека наличия флэш-сообщения
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: response.headers.location,
+        cookies: getCookie(response),
+      });
+
+      // Доступ запрещён!
+      expect(responseRedirect.body).toContain(i18next.t('flash.authError'));
+      expect(responseRedirect.body)
+        .toContain('<div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>');
     });
 
-    expect(response.statusCode).toBe(302);
-    expect(response.headers.location).toBe(app.reverse('users'));
+    it('D another user fail', async () => {
+      // параметры создаваемго пользователя и существующего
+      const paramsNewUser = testData.users.new;
+      const paramsExistingUser = testData.users.existing;
+      const idAnotherUser = await getIdExistingUser(paramsExistingUser);
 
-    const nonEistentUser = await models.user.query()
-      .findOne({ email: paramsExistingUserToUpdate.email });
-    expect(nonEistentUser).toBeUndefined();
+      // Создание пользователя
+      const responseCreateUser = await app.inject({
+        method: 'POST',
+        url: app.reverse('users'),
+        payload: {
+          data: paramsNewUser,
+        },
+      });
+      expect(responseCreateUser.statusCode).toBe(302);
+
+      // вход нового пользователя
+      const responseSignInNewUser = await signIn(paramsNewUser);
+      expect(responseSignInNewUser.statusCode).toBe(302);
+
+      const cookieNewUser = getCookie(responseSignInNewUser);
+
+      const responseNewRedirect = await app.inject({
+        method: 'GET',
+        url: responseSignInNewUser.headers.location,
+        cookies: cookieNewUser,
+      });
+
+      expect(responseNewRedirect.statusCode).toBe(200);
+      // 'Вы залогинены'
+      expect(responseNewRedirect.body).toContain(i18next.t('flash.session.create.success'));
+      expect(responseNewRedirect.body).toContain('<div class="alert alert-success">Вы залогинены</div>');
+
+      // запрос на удаление другого существующего пользователя
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/users/${idAnotherUser}`,
+        cookies: cookieNewUser,
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('users'));
+
+      const expected = {
+        ..._.omit(paramsExistingUser, 'password'),
+        passwordDigest: encrypt(paramsExistingUser.password),
+      };
+      const user = await models.user.query()
+        .findOne({ email: paramsExistingUser.email });
+      expect(user).toMatchObject(expected);
+
+      // провека наличия флэш-сообщения
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: response.headers.location,
+        cookies: getCookie(response),
+      });
+
+      // Вы не можете редактировать или удалять другого пользователя
+      expect(responseRedirect.body).toContain(i18next.t('flash.users.authError'));
+      expect(responseRedirect.body)
+        .toContain('<div class="alert alert-danger">Вы не можете редактировать или удалять другого пользователя</div>');
+    });
   });
 
   afterEach(async () => {
