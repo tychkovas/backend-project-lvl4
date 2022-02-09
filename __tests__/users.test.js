@@ -70,23 +70,60 @@ describe('test users CRUD', () => {
     expect(response.statusCode).toBe(200);
   });
 
-  it('create', async () => {
-    const params = testData.users.new;
-    const response = await app.inject({
-      method: 'POST',
-      url: app.reverse('users'),
-      payload: {
-        data: params,
-      },
+  describe('create', () => {
+    it('C success', async () => {
+      const params = testData.users.new;
+      const response = await app.inject({
+        method: 'POST',
+        url: app.reverse('users'),
+        payload: {
+          data: params,
+        },
+      });
+
+      expect(response.statusCode).toBe(302);
+      const expected = {
+        ..._.omit(params, 'password'),
+        passwordDigest: encrypt(params.password),
+      };
+      const user = await models.user.query().findOne({ email: params.email });
+      expect(user).toMatchObject(expected);
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('root'));
+
+      // провека наличия флэш-сообщения
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: app.reverse('root'),
+        cookies: getCookie(response),
+      });
+      expect(responseRedirect.statusCode).toBe(200);
+      // 'Пользователь успешно зарегистрирован'
+      expect(responseRedirect.body).toContain(i18next.t('flash.users.create.success'));
+      expect(responseRedirect.body).toContain('<div class="alert alert-info">Пользователь успешно зарегистрирован</div>');
     });
 
-    expect(response.statusCode).toBe(302);
-    const expected = {
-      ..._.omit(params, 'password'),
-      passwordDigest: encrypt(params.password),
-    };
-    const user = await models.user.query().findOne({ email: params.email });
-    expect(user).toMatchObject(expected);
+    it('C empty fail', async () => {
+      const params = {
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+      };
+      const response = await app.inject({
+        method: 'POST',
+        url: app.reverse('users'),
+        payload: {
+          data: params,
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      // 'Не удалось зарегистрировать'
+      expect(response.body).toContain(i18next.t('flash.users.create.error'));
+      expect(response.body).toContain('<div class="alert alert-danger">Не удалось зарегистрировать</div>');
+    });
   });
 
   describe('update', () => {
