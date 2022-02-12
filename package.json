@@ -64,6 +64,7 @@
       "@babel/core": "^7.14.3",
       "@babel/node": "^7.14.2",
       "@babel/preset-env": "^7.14.4",
+      "@faker-js/faker": "^6.0.0-alpha.6",
       "@jest/globals": "^27.0.3",
       "@types/jest": "^26.0.23",
       "@types/node": "^15.12.2",
