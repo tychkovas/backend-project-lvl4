@@ -2,6 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import faker from '@faker-js/faker';
 
 const getFixturePath = (filename) => path.join(__dirname, '..', '..', '__fixtures__', filename);
 const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8').trim();
@@ -15,3 +16,10 @@ export const prepareData = async (app) => {
   // получаем данные из фикстур и заполняем БД
   await knex('users').insert(getFixtureData('users.json'));
 };
+
+export const getNewFakerUser = () => ({
+  email: faker.internet.email(),
+  password: faker.internet.password(),
+  firstName: faker.name.firstName(),
+  lastName: faker.name.lastName(),
+});

@@ -4,7 +4,7 @@ import _ from 'lodash';
 import i18next from 'i18next';
 import getApp from '../server/index.js';
 import encrypt from '../server/lib/secure.js';
-import { getTestData, prepareData } from './helpers/index.js';
+import { getTestData, prepareData, getNewFakerUser } from './helpers/index.js';
 
 describe('test users CRUD', () => {
   let app;
@@ -72,7 +72,7 @@ describe('test users CRUD', () => {
 
   describe('create', () => {
     it('C success', async () => {
-      const params = testData.users.new;
+      const params = getNewFakerUser();
       const response = await app.inject({
         method: 'POST',
         url: app.reverse('users'),
