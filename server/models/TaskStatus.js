@@ -7,7 +7,7 @@ const unique = objectionUnique({
 
 export default class TaskStatus extends unique(Model) {
   static get tableName() {
-    return 'taskStatus';
+    return 'task_statuses';
   }
 
   static get jsonSchema() {
