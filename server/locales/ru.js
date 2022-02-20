@@ -29,6 +29,9 @@ module.exports = {
         },
         accessError: 'Вы не можете редактировать или удалять другого пользователя',
       },
+      statuses: {
+        delete: 'Не удалось удалить статус',
+      },
       authError: 'Доступ запрещён! Пожалуйста, авторизируйтесь.',
     },
     layouts: {
@@ -45,6 +48,16 @@ module.exports = {
         new: {
           signIn: 'Вход',
           submit: 'Войти',
+        },
+      },
+      statuses: {
+        id: 'ID',
+        name: 'Наименование',
+        createdAt: 'Дата создания',
+        actions: {
+          edit: 'Изменить',
+          delete: 'Удалить',
+          new: 'Создать статус',
         },
       },
       users: {
