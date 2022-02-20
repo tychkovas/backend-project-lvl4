@@ -38,6 +38,7 @@ module.exports = {
       application: {
         home: 'Главная',
         users: 'Пользователи',
+        statuses: 'Статусы',
         signIn: 'Вход',
         signUp: 'Регистрация',
         signOut: 'Выход',

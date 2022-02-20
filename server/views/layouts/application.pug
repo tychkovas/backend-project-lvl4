@@ -39,6 +39,7 @@ html.h-100(lang='en')
             //- a.nav-link.active(aria-current='page' href='#') Home
             a.nav-link(href=route('root'))= t('layouts.application.home')
             a.nav-link(href=route('users'))= t('layouts.application.users')
+            a.nav-link(href=route('statuses'))= t('layouts.application.statuses')
             if isAuthenticated()
               +buttonTo(route('session'), 'delete')(class="btn nav-link ml-1" style = "margin-left: 16px" value=t('layouts.application.signOut'))
             else
