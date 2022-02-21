@@ -8,5 +8,9 @@ export default (app) => {
       });
       reply.render('statuses/index', { statuses });
       return reply;
+    })
+    .get('/statuses/new', { name: 'newStatus' }, (req, reply) => {
+      const status = new app.objection.models.taskStatus();
+      reply.render('statuses/new', { status });
     });
 };

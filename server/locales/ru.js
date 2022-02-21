@@ -60,6 +60,10 @@ module.exports = {
           delete: 'Удалить',
           new: 'Создать статус',
         },
+        new: {
+          header: 'Создание статуса',
+          submit: 'Создать',
+        },
       },
       users: {
         id: 'ID',
