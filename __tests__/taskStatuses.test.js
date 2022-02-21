@@ -32,4 +32,13 @@ describe('test statuses CRUD', () => {
 
     expect(response.statusCode).toBe(200);
   });
+
+  it('new', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: app.reverse('newStatus'),
+    });
+
+    expect(response.statusCode).toBe(200);
+  });
 });
