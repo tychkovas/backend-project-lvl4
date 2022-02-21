@@ -1,4 +1,5 @@
 import getApp from '../server/index.js';
+import models from '../server/models/index.js';
 import {
   getTestData,
   prepareData,
@@ -7,14 +8,14 @@ import {
 describe('test statuses CRUD', () => {
   let app;
   let knex;
-  // let models;
+  let models;
   // eslint-disable-next-line no-unused-vars
   const testData = getTestData();
 
   beforeAll(async () => {
     app = await getApp();
     knex = app.objection.knex;
-    // models = app.objection.models;
+    models = app.objection.models;
   });
 
   beforeEach(async () => {
@@ -40,5 +41,24 @@ describe('test statuses CRUD', () => {
     });
 
     expect(response.statusCode).toBe(200);
+  });
+
+  describe('create', () => {
+    it('should by successful', async () => {
+      const params = { name: 'new status' }; // todo
+      const response = await app.inject({
+        method: 'POST',
+        url: app.reverse('statuses'),
+        payload: { data: params },
+      });
+
+      expect(response.statusCode).toBe(302);
+
+      const expected = params;
+      const status = await models.taskStatus.query()
+        .findOne({ name: params.name });
+
+      expect(status).toMatchObject(expected);
+    });
   });
 });
