@@ -64,6 +64,10 @@ module.exports = {
           header: 'Создание статуса',
           submit: 'Создать',
         },
+        edit: {
+          header: 'Изменение статуса',
+          submit: 'Изменить',
+        },
       },
       users: {
         id: 'ID',
