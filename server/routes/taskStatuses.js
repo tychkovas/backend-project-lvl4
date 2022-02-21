@@ -12,5 +12,18 @@ export default (app) => {
     .get('/statuses/new', { name: 'newStatus' }, (req, reply) => {
       const status = new app.objection.models.taskStatus();
       reply.render('statuses/new', { status });
+    })
+    .post('/statuses', async (req, reply) => {
+      try {
+        const status = await app.objection.models.taskStatus
+          .fromJson(req.body.data);
+        await app.objection.models.taskStatus.query().insert(status);
+
+        reply.redirect(app.reverse('statuses'));
+        return reply;
+      } catch ({ data }) {
+        reply.render('statuses/new', { status: req.body.data, errors: data });
+        return reply;
+      }
     });
 };
