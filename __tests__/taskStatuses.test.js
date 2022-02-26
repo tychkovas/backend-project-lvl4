@@ -16,6 +16,12 @@ describe('test statuses CRUD', () => {
     return existingInstance?.id;
   };
 
+  const getIdInstance = async (table, params) => {
+    const instance = await models[table].query().findOne(params);
+    expect(instance).toBeDefined();
+    return instance?.id;
+  };
+
   beforeAll(async () => {
     app = await getApp();
     knex = app.objection.knex;
@@ -102,6 +108,25 @@ describe('test statuses CRUD', () => {
       const nonExistingStatus = await models.taskStatus.query()
         .findOne({ name: paramsExistingStatus.name });
       expect(nonExistingStatus).toBeUndefined();
+    });
+  });
+
+  describe('delete', () => {
+    it('should by successful', async () => {
+      const paramsExistingStatus = testData.taskStatuses.existing;
+      const id = await getIdInstance('taskStatus', paramsExistingStatus);
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/statuses/${id}`,
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('statuses'));
+
+      const nonExistentStatus = await models.taskStatus.query()
+        .findOne(paramsExistingStatus);
+      expect(nonExistentStatus).toBeUndefined();
     });
   });
 
