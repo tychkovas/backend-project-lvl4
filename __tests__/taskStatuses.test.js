@@ -1,5 +1,4 @@
 import getApp from '../server/index.js';
-import models from '../server/models/index.js';
 import {
   getTestData,
   prepareData,
@@ -9,8 +8,13 @@ describe('test statuses CRUD', () => {
   let app;
   let knex;
   let models;
-  // eslint-disable-next-line no-unused-vars
   const testData = getTestData();
+
+  const getIdExistingField = async (table, params) => {
+    const existingInstance = await table.query().findOne(params);
+    expect(existingInstance).toBeDefined();
+    return existingInstance?.id;
+  };
 
   beforeAll(async () => {
     app = await getApp();
@@ -61,4 +65,50 @@ describe('test statuses CRUD', () => {
       expect(status).toMatchObject(expected);
     });
   });
+
+  describe('update', () => {
+    it('should by successful', async () => {
+      const paramsExistingStatus = testData.taskStatuses.existing;
+
+      const id = await getIdExistingField(models.taskStatus, { name: paramsExistingStatus.name });
+
+      const responseEditStatus = await app.inject({
+        method: 'GET',
+        url: `/statuses/${id}/edit`,
+        // cookies: cookie,
+      });
+
+      expect(responseEditStatus.statusCode).toBe(200);
+
+      const paramsUpdated = testData.taskStatuses.updated;
+      const response = await app.inject({
+        method: 'PATCH',
+        url: `/statuses/${id}`,
+        payload: {
+          data: paramsUpdated,
+        },
+        // cookies: cookie,
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('statuses'));
+
+      const expected = paramsUpdated;
+
+      const status = await models.taskStatus.query()
+        .findOne({ name: paramsUpdated.name });
+      expect(status).toMatchObject(expected);
+
+      const nonExistingStatus = await models.taskStatus.query()
+        .findOne({ name: paramsExistingStatus.name });
+      expect(nonExistingStatus).toBeUndefined();
+    });
+  });
+
+  afterEach(async () => {
+    // после каждого теста откатываем миграции
+    await knex.migrate.rollback();
+  });
+
+  afterAll(() => app.close());
 });
