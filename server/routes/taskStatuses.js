@@ -63,5 +63,17 @@ export default (app) => {
         req.log.info(`/status patch: fail. data = ${data}`);
         reply.render('statuses/edit', { user: { ...req.body.data, curId: id }, error: data });
       }
+    })
+    .delete('/statuses/:id', async (req, reply) => {
+      try {
+        const id = Number(req.params?.id);
+        const idDeleted = await app.objection.models.taskStatus.query()
+          .deleteById(id);
+        req.log.info(`/statuses delete: id = ${idDeleted}`);
+      } catch ({ data }) {
+        req.log.error(`/statuses delete: fail  ${data}`);
+      }
+      reply.redirect(app.reverse('statuses'));
+      return reply;
     });
 };
