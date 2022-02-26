@@ -40,5 +40,28 @@ export default (app) => {
         reply.redirect(app.reverse('statuses'));
         return reply;
       }
+    })
+    .patch('/statuses/:id', { name: 'updateStatus' }, async (req, reply) => {
+      const id = Number(req.params?.id);
+      if (!id) {
+        reply.redirect('/');
+        return reply;
+      }
+
+      try {
+        // const user = await app.objection.models.user.fromJson(req.body.data);
+        const status = await app.objection.models.taskStatus.fromJson(req.body.data);
+        req.log.info(`/users patch data : ${JSON.stringify(status)}`);
+        const statusUpdated = await app.objection.models.taskStatus.query()
+          .findById(id);
+
+        await statusUpdated.$query().update(req.body.data);
+        reply.redirect(app.reverse('statuses'));
+
+        return reply;
+      } catch ({ data }) {
+        req.log.info(`/status patch: fail. data = ${data}`);
+        reply.render('statuses/edit', { user: { ...req.body.data, curId: id }, error: data });
+      }
     });
 };
