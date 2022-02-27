@@ -248,9 +248,9 @@ describe('test users CRUD', () => {
         .findOne({ email: paramsExistingUserToUpdate.email });
       expect(user).toMatchObject(expected);
 
-      const nonEistentUser = await models.user.query()
+      const nonExistentUser = await models.user.query()
         .findOne({ email: paramsUpdated.email });
-      expect(nonEistentUser).toBeUndefined();
+      expect(nonExistentUser).toBeUndefined();
 
       // провека наличия флэш-сообщения
       const responseRedirect = await app.inject({
@@ -285,9 +285,9 @@ describe('test users CRUD', () => {
       expect(response.statusCode).toBe(302);
       expect(response.headers.location).toBe(app.reverse('users'));
 
-      const nonEistentUser = await models.user.query()
+      const nonExistentUser = await models.user.query()
         .findOne({ email: paramsExistingUserToUpdate.email });
-      expect(nonEistentUser).toBeUndefined();
+      expect(nonExistentUser).toBeUndefined();
 
       // провека наличия флэш-сообщения
       const responseRedirect = await app.inject({
