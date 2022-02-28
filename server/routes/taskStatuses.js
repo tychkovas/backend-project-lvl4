@@ -1,6 +1,6 @@
 export default (app) => {
   app
-    .get('/statuses', { name: 'statuses' }, async (req, reply) => {
+    .get('/statuses', { name: 'statuses', preValidation: app.authenticate}, async (req, reply) => {
       const statuses = await app.objection.models.taskStatus.query();
 
       Object.entries(statuses).forEach(([key, value]) => {
@@ -9,11 +9,11 @@ export default (app) => {
       reply.render('statuses/index', { statuses });
       return reply;
     })
-    .get('/statuses/new', { name: 'newStatus' }, (req, reply) => {
+    .get('/statuses/new', { name: 'newStatus', preValidation: app.authenticate }, (req, reply) => {
       const status = new app.objection.models.taskStatus();
       reply.render('statuses/new', { status });
     })
-    .post('/statuses', async (req, reply) => {
+    .post('/statuses', { name: 'createStatus', preValidation: app.authenticate }, async (req, reply) => {
       try {
         const status = await app.objection.models.taskStatus
           .fromJson(req.body.data);
@@ -26,7 +26,7 @@ export default (app) => {
         return reply;
       }
     })
-    .get('/statuses/:id/edit', { name: 'openForEditStatus' }, async (req, reply) => {
+    .get('/statuses/:id/edit', { name: 'openForEditStatus', preValidation: app.authenticate }, async (req, reply) => {
       const id = Number(req.params?.id);
       try {
         const status = await app.objection.models.taskStatus.query()
@@ -41,7 +41,7 @@ export default (app) => {
         return reply;
       }
     })
-    .patch('/statuses/:id', { name: 'updateStatus' }, async (req, reply) => {
+    .patch('/statuses/:id', { name: 'updateStatus', preValidation: app.authenticate }, async (req, reply) => {
       const id = Number(req.params?.id);
       if (!id) {
         reply.redirect('/');
@@ -64,7 +64,7 @@ export default (app) => {
         reply.render('statuses/edit', { user: { ...req.body.data, curId: id }, error: data });
       }
     })
-    .delete('/statuses/:id', async (req, reply) => {
+    .delete('/statuses/:id', { name: 'deleteStatus', preValidation: app.authenticate }, async (req, reply) => {
       try {
         const id = Number(req.params?.id);
         const idDeleted = await app.objection.models.taskStatus.query()
