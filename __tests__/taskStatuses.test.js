@@ -9,6 +9,23 @@ describe('test statuses CRUD', () => {
   let knex;
   let models;
   const testData = getTestData();
+  let cookie;
+
+  const signIn = async (params) => {
+    const response = await app.inject({
+      method: 'POST',
+      url: app.reverse('session'),
+      payload: { data: params },
+    });
+
+    return response;
+  };
+
+  const getCookie = (response) => {
+    const [sessionCookie] = response.cookies;
+    const { name, value } = sessionCookie;
+    return { [name]: value };
+  };
 
   const getIdExistingField = async (table, params) => {
     const existingInstance = await table.query().findOne(params);
@@ -33,12 +50,18 @@ describe('test statuses CRUD', () => {
     // выполняем миграции
     await knex.migrate.latest();
     await prepareData(app);
+
+    const responseSignIn = await signIn(testData.users.existing);
+    expect(responseSignIn.statusCode).toBe(302);
+    expect(responseSignIn.headers.location).toBe(app.reverse('root'));
+    cookie = getCookie(responseSignIn);
   });
 
   it('index', async () => {
     const response = await app.inject({
       method: 'GET',
       url: '/statuses',
+      cookies: cookie,
     });
 
     expect(response.statusCode).toBe(200);
@@ -48,6 +71,7 @@ describe('test statuses CRUD', () => {
     const response = await app.inject({
       method: 'GET',
       url: app.reverse('newStatus'),
+      cookies: cookie,
     });
 
     expect(response.statusCode).toBe(200);
@@ -60,6 +84,7 @@ describe('test statuses CRUD', () => {
         method: 'POST',
         url: app.reverse('statuses'),
         payload: { data: params },
+        cookies: cookie,
       });
 
       expect(response.statusCode).toBe(302);
@@ -81,7 +106,7 @@ describe('test statuses CRUD', () => {
       const responseEditStatus = await app.inject({
         method: 'GET',
         url: `/statuses/${id}/edit`,
-        // cookies: cookie,
+        cookies: cookie,
       });
 
       expect(responseEditStatus.statusCode).toBe(200);
@@ -93,7 +118,7 @@ describe('test statuses CRUD', () => {
         payload: {
           data: paramsUpdated,
         },
-        // cookies: cookie,
+        cookies: cookie,
       });
 
       expect(response.statusCode).toBe(302);
@@ -119,6 +144,7 @@ describe('test statuses CRUD', () => {
       const response = await app.inject({
         method: 'DELETE',
         url: `/statuses/${id}`,
+        cookies: cookie,
       });
 
       expect(response.statusCode).toBe(302);
