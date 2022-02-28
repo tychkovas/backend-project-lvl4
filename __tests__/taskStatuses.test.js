@@ -55,7 +55,7 @@ describe('test statuses CRUD', () => {
     cookie = getCookie(responseSignIn);
   });
 
-  it('index', async () => {
+  it('index unauthorized', async () => {
     const response = await app.inject({
       method: 'GET',
       url: '/statuses',
@@ -63,6 +63,16 @@ describe('test statuses CRUD', () => {
     });
 
     expect(response.statusCode).toBe(200);
+  });
+
+  it('index not authorized', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/statuses',
+    });
+
+    expect(response.statusCode).toBe(302);
+    expect(response.headers.location).toBe(app.reverse('root'));
   });
 
   it('new', async () => {
