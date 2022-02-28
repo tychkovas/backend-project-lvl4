@@ -52,8 +52,6 @@ describe('test statuses CRUD', () => {
     await prepareData(app);
 
     const responseSignIn = await signIn(testData.users.existing);
-    expect(responseSignIn.statusCode).toBe(302);
-    expect(responseSignIn.headers.location).toBe(app.reverse('root'));
     cookie = getCookie(responseSignIn);
   });
 
