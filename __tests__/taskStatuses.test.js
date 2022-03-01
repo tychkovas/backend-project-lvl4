@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 import getApp from '../server/index.js';
 import {
   getTestData,
@@ -23,6 +24,7 @@ describe('test statuses CRUD', () => {
 
   const getCookie = (response) => {
     const [sessionCookie] = response.cookies;
+    expect(sessionCookie).toBeDefined();
     const { name, value } = sessionCookie;
     return { [name]: value };
   };
@@ -63,6 +65,9 @@ describe('test statuses CRUD', () => {
     });
 
     expect(response.statusCode).toBe(200);
+    // 'Вы залогинены'
+    expect(response.body).toContain('<div class="alert alert-success">Вы залогинены</div>');
+    expect(response.body).toContain(i18next.t('flash.session.create.success'));
   });
 
   it('index not authorized', async () => {
@@ -73,6 +78,18 @@ describe('test statuses CRUD', () => {
 
     expect(response.statusCode).toBe(302);
     expect(response.headers.location).toBe(app.reverse('root'));
+
+    // провека наличия флэш-сообщения
+    const responseRedirect = await app.inject({
+      method: 'GET',
+      url: response.headers.location,
+      cookies: getCookie(response),
+    });
+
+    // Доступ запрещён!
+    expect(responseRedirect.body).toContain(i18next.t('flash.authError'));
+    expect(responseRedirect.body)
+      .toContain('<div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>');
   });
 
   it('new', async () => {
@@ -96,12 +113,24 @@ describe('test statuses CRUD', () => {
       });
 
       expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('statuses'));
 
       const expected = params;
       const status = await models.taskStatus.query()
         .findOne({ name: params.name });
 
       expect(status).toMatchObject(expected);
+
+      // провека наличия флэш-сообщения
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: app.reverse('statuses'),
+        cookies: getCookie(response),
+      });
+      expect(responseRedirect.statusCode).toBe(200);
+      // 'Статус успешно создан'
+      expect(responseRedirect.body).toContain(i18next.t('flash.statuses.create.success'));
+      expect(responseRedirect.body).toContain('<div class="alert alert-info">Статус успешно создан</div>');
     });
   });
 
@@ -118,6 +147,8 @@ describe('test statuses CRUD', () => {
       });
 
       expect(responseEditStatus.statusCode).toBe(200);
+
+      // cookie = getCookie(responseEditStatus);
 
       const paramsUpdated = testData.taskStatuses.updated;
       const response = await app.inject({
@@ -141,6 +172,19 @@ describe('test statuses CRUD', () => {
       const nonExistingStatus = await models.taskStatus.query()
         .findOne({ name: paramsExistingStatus.name });
       expect(nonExistingStatus).toBeUndefined();
+
+      cookie = getCookie(response);
+      // провека наличия флэш-сообщения
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: app.reverse('statuses'),
+        cookies: cookie,
+      });
+      expect(responseRedirect.statusCode).toBe(200);
+
+      // 'Статус успешно изменён'
+      expect(responseRedirect.body).toContain(i18next.t('flash.statuses.edit.success'));
+      expect(responseRedirect.body).toContain('<div class="alert alert-info">Статус успешно изменён</div>');
     });
   });
 
@@ -161,6 +205,18 @@ describe('test statuses CRUD', () => {
       const nonExistentStatus = await models.taskStatus.query()
         .findOne(paramsExistingStatus);
       expect(nonExistentStatus).toBeUndefined();
+
+      // провека наличия флэш-сообщения
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: app.reverse('statuses'),
+        cookies: getCookie(response),
+      });
+      expect(responseRedirect.statusCode).toBe(200);
+
+      // 'Статус успешно удалён'
+      expect(responseRedirect.body).toContain(i18next.t('flash.statuses.delete.success'));
+      expect(responseRedirect.body).toContain('<div class="alert alert-info">Статус успешно удалён</div>');
     });
   });
 
