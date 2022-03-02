@@ -31,6 +31,8 @@ import FormStrategy from './lib/passportStrategies/FormStrategy.js';
 dotenv.config();
 console.log('-! dotenv', dotenv.config());
 const mode = process.env.NODE_ENV || 'development';
+const logLevel = process.env.FASTIFY_DEBUG || 'info';
+console.debug('-! logLevel =', logLevel);
 const isProduction = mode === 'production';
 const isDevelopment = mode === 'development';
 console.info('-! isDevelopment', isDevelopment);
@@ -128,6 +130,7 @@ export default () => {
   const app = fastify({
     logger: {
       prettyPrint: isDevelopment,
+      level: logLevel,
     },
   });
 

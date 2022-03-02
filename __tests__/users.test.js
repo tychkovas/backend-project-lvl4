@@ -276,6 +276,15 @@ describe('test users CRUD', () => {
       const cookie = getCookie(responseSignIn);
       const id = await getIdExistingUser(paramsExistingUserToUpdate);
 
+      const user = await app.objection.models.user.query().findById(id);
+
+      const createdTasks = await user.$relatedQuery('createdTasks');
+      const assignedTasks = await user.$relatedQuery('assignedTasks');
+
+      const tasks = _.union(createdTasks, assignedTasks);
+
+      await Promise.all(tasks.map((task) => task.$query().delete()));
+
       const response = await app.inject({
         method: 'DELETE',
         url: `/users/${id}`,
@@ -299,6 +308,46 @@ describe('test users CRUD', () => {
       // '>Пользователь успешно удалён'
       expect(responseRedirect.body).toContain(i18next.t('flash.users.delete.success'));
       expect(responseRedirect.body).toContain('<div class="alert alert-success">Пользователь успешно удалён</div>');
+    });
+
+    it('D associated with task fail', async () => {
+      const paramsExistingUserToUpdate = testData.users.existing;
+      const responseSignIn = await signIn(paramsExistingUserToUpdate);
+
+      expect(responseSignIn.statusCode).toBe(302);
+      expect(responseSignIn.headers.location).toBe(app.reverse('root'));
+
+      const cookie = getCookie(responseSignIn);
+      const id = await getIdExistingUser(paramsExistingUserToUpdate);
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/users/${id}`,
+        cookies: cookie,
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('users'));
+
+      const expected = {
+        ..._.omit(paramsExistingUserToUpdate, 'password'),
+        passwordDigest: encrypt(paramsExistingUserToUpdate.password),
+      };
+
+      const user = await models.user.query()
+        .findOne({ email: paramsExistingUserToUpdate.email });
+      expect(user).toMatchObject(expected);
+
+      // провека наличия флэш-сообщения
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: response.headers.location,
+        cookies: getCookie(response),
+      });
+
+      // 'Не удалось удалить пользователя'
+      expect(responseRedirect.body).toContain(i18next.t('flash.users.delete.error'));
+      expect(responseRedirect.body).toContain('<div class="alert alert-danger">Не удалось удалить пользователя</div>');
     });
     it('D unlogged user fail', async () => {
       const paramsExistingUserToUpdate = testData.users.existing;

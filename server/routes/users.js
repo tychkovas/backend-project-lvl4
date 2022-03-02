@@ -1,6 +1,7 @@
 // @ts-check
 
 import i18next from 'i18next';
+import _ from 'lodash';
 
 export default (app) => {
   app
@@ -98,13 +99,13 @@ export default (app) => {
         return reply;
       }
     })
-    .delete('/users/:id', async (req, reply) => {
+    .delete('/users/:id', { name: 'deleteUser' }, async (req, reply) => {
       const id = Number(req.params?.id);
       const cookieId = req.session.get('userId');
-      req.log.info(`/users patch:  id = ${id}`);
+      req.log.info(`deleteUser:  id = ${id}`);
       // authentication (registration) check
       if (!cookieId) {
-        req.log.error(` delete error session = ${cookieId}`);
+        req.log.error(`deleteUser: error session = ${cookieId}`);
         // <div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>
         req.flash('error', i18next.t('flash.authError'));
         reply.redirect(app.reverse('root'));
@@ -112,7 +113,7 @@ export default (app) => {
       }
       // access check
       if ((id !== cookieId)) {
-        req.log.error(` delete error cookieId = ${cookieId}`);
+        req.log.error(`deleteUser: error cookieId = ${cookieId}`);
         // eslint-disable-next-line max-len
         // <div class="alert alert-danger">Вы не можете редактировать или удалять другого пользователя</div>
         req.flash('error', i18next.t('flash.users.accessError'));
@@ -121,21 +122,27 @@ export default (app) => {
       }
 
       try {
-        const idDeleted = await app.objection.models.user.query()
-          .deleteById(id);
+        const user = await app.objection.models.user.query().findById(id);
 
-        req.log.info(`/users delete: id = ${idDeleted}`);
+        req.log.info(`deleteUser: id = ${JSON.stringify(user.name)}`);
 
-        req.logOut();
+        const createdTasks = await user.$relatedQuery('createdTasks');
+        const assignedTasks = await user.$relatedQuery('assignedTasks');
 
-        req.log.info('/users delete: logOut');
-
-        req.flash('success', i18next.t('flash.users.delete.success'));
+        if (_.isEmpty([...createdTasks, ...assignedTasks])) {
+          req.logOut();
+          await user.$query().delete();
+          req.log.info(`deleteUser: logOut ${user.name}`);
+          req.flash('success', i18next.t('flash.users.delete.success'));
+        } else {
+          req.log.info('deleteUser: fail: user associated with task');
+          req.flash('error', i18next.t('flash.users.delete.error'));
+        }
         reply.redirect(app.reverse('users'));
         return reply;
-      } catch ({ data }) {
+      } catch (err) {
         req.flash('error', i18next.t('flash.users.delete.error'));
-        req.log.error(`/users delete: fail id = ${id}`);
+        req.log.error(`deleteUser: error: fail id = ${id}, data = ${err}`);
         reply.redirect(app.reverse('users'));
         return reply;
       }

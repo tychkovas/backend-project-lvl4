@@ -41,6 +41,7 @@ html.h-100(lang='en')
             a.nav-link(href=route('users'))= t('layouts.application.users')
             if isAuthenticated()
               a.nav-link(href=route('statuses'))= t('layouts.application.statuses')
+              a.nav-link(href=route('tasks'))= t('layouts.application.tasks')
             if isAuthenticated()
               +buttonTo(route('session'), 'delete')(class="btn nav-link ml-1" style = "margin-left: 16px" value=t('layouts.application.signOut'))
             else
@@ -53,7 +54,7 @@ html.h-100(lang='en')
             div.alert(class=`alert-${getAlertClass(type)}`)= message
 
         h1.my-4
-        block header
+          block header
         block content
 
       footer.mt-auto.text-white

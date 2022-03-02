@@ -1,11 +1,12 @@
-import { Model } from 'objection';
+// import { Model } from 'objection';
 import objectionUnique from 'objection-unique';
+import BaseModel from './BaseModel.js';
 
 const unique = objectionUnique({
   fields: ['name'],
 });
 
-export default class TaskStatus extends unique(Model) {
+export default class TaskStatus extends unique(BaseModel) {
   static get tableName() {
     return 'task_statuses';
   }
@@ -17,6 +18,20 @@ export default class TaskStatus extends unique(Model) {
       properties: {
         id: { type: 'integer' },
         name: { type: 'string', minLength: 1 },
+      },
+    };
+  }
+
+  static get relationMappings() {
+    return {
+      tasks: {
+        relation: BaseModel.HasManyRelation,
+        modelClass: 'Task',
+
+        join: {
+          from: 'task_statuses.id',
+          to: 'tasks.statusId',
+        },
       },
     };
   }
