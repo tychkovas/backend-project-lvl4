@@ -1,11 +1,12 @@
-import { Model } from 'objection';
+// import { Model } from 'objection';
 import objectionUnique from 'objection-unique';
+import BaseModel from './BaseModel.js';
 
 const unique = objectionUnique({
   fields: ['name'],
 });
 
-export default class TaskStatus extends unique(Model) {
+export default class TaskStatus extends unique(BaseModel) {
   static get tableName() {
     return 'task_statuses';
   }
