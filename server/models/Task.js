@@ -24,4 +24,41 @@ export default class Task extends unique(BaseModel) {
       },
     };
   }
+
+  // This object defines the relations to other models.
+  static get relationMappings() {
+    // One way to prevent circular references
+    // is to require the model classes here.
+    return {
+      status: {
+        relation: BaseModel.BelongsToOneRelation,
+        modelClass: 'TaskStatus',
+
+        join: {
+          from: 'task.statusId',
+          to: 'task_statuses.id',
+        },
+      },
+
+      creator: {
+        relation: BaseModel.BelongsToOneRelation,
+        modelClass: 'User',
+
+        join: {
+          from: 'tasks.creatorId',
+          to: 'users.id',
+        },
+      },
+
+      executor: {
+        relation: BaseModel.BelongsToOneRelation,
+        midelClass: 'User',
+
+        join: {
+          from: 'tasks.executorId',
+          to: 'users.id',
+        },
+      },
+    };
+  }
 }

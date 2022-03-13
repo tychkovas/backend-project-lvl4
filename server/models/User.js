@@ -36,6 +36,30 @@ export default class User extends unique(BaseModel) {
   }
 
   // @ts-ignore
+  static get relationMappings() {
+    return {
+      createdTasks: {
+        relation: BaseModel.HasManyRelation,
+        model: 'Task',
+
+        join: {
+          from: 'tasks.id',
+          to: 'users.id',
+        },
+      },
+      assignedTasks: {
+        relation: BaseModel.BelongsToOneRelation,
+        model: 'Task',
+
+        join: {
+          from: 'tasks.id',
+          to: 'users.id',
+        },
+      },
+    };
+  }
+
+  // @ts-ignore
   set password(value) {
     this.passwordDigest = encrypt(value);
   }
