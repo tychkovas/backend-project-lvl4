@@ -80,6 +80,29 @@ module.exports = {
           submit: 'Изменить',
         },
       },
+
+      tasks: {
+        id: 'ID',
+        name: 'Наименование',
+        status: 'Статус',
+        creator: 'Автор',
+        executor: 'Исполнитель',
+        createdAt: 'Дата создания',
+        actions: {
+          edit: 'Изменить',
+          delete: 'Удалить',
+          new: 'Создать задачу',
+        },
+        new: {
+          header: 'Создание задачи',
+          submit: 'Создать',
+        },
+        edit: {
+          header: 'Изменение задачи',
+          submit: 'Изменить',
+        },
+      },
+
       users: {
         id: 'ID',
         firstName: 'Имя',
