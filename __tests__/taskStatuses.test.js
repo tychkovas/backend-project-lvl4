@@ -57,7 +57,7 @@ describe('test statuses CRUD', () => {
     cookie = getCookie(responseSignIn);
   });
 
-  it('index unauthorized', async () => {
+  it('index authorized', async () => {
     const response = await app.inject({
       method: 'GET',
       url: '/statuses',
