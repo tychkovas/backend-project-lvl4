@@ -1,21 +1,17 @@
-console.log('"tasks_clean_and_add": deleting everything and adding two entries');
+const fs = require('fs');
+const path = require('path');
+
+const getFixturePath = (filename) => path.join(__dirname, '..', '..', '__fixtures__', filename);
+const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8').trim();
+const getFixtureData = (filename) => JSON.parse(readFixture(filename));
+
+const fileNameToInsertData = 'tasks.json';
+
+console.log('"tasks_clean_and_add"');
+console.log(' - deleting everything');
+console.log(' - insert data:', getFixturePath(fileNameToInsertData));
+
 module.exports.seed = async (knex) => {
   await knex('tasks').del();
-  await knex('tasks')
-    .insert([
-      {
-        name: 'задача 1',
-        description: 'описание 1',
-        statusId: 1,
-        creatorId: 1,
-        executorId: 1,
-      },
-      {
-        name: 'задача 2',
-        description: 'описание 2',
-        statusId: 2,
-        creatorId: 2,
-        executorId: 2,
-      },
-    ]);
+  await knex('tasks').insert(getFixtureData(fileNameToInsertData));
 };
