@@ -79,4 +79,10 @@ describe('test tasks CRUD', () => {
     expect(responseRedirect.body)
       .toContain('<div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>');
   });
+
+  afterEach(async () => {
+    await knex.migrate.rollback();
+  });
+
+  afterAll(() => app.close());
 });
