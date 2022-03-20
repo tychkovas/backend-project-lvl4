@@ -80,6 +80,16 @@ describe('test tasks CRUD', () => {
       .toContain('<div class="alert alert-danger">Доступ запрещён! Пожалуйста, авторизируйтесь.</div>');
   });
 
+  it('new', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: app.reverse('newTask'),
+      cookies: cookie,
+    });
+
+    expect(response.statusCode).toBe(200);
+  });
+
   afterEach(async () => {
     await knex.migrate.rollback();
   });
