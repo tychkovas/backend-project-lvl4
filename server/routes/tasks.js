@@ -12,5 +12,10 @@ export default (app) => {
         });
         reply.render('tasks/index', { tasks });
         return reply;
-      });
+      })
+
+    .get('/tasks/new', { name: 'newTask', preValidation: app.authenticate }, async (req, reply) => {
+      const task = new app.objection.models.task();
+      reply.render('tasks/new', { task });
+    });
 };

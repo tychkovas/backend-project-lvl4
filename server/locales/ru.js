@@ -85,6 +85,7 @@ module.exports = {
       tasks: {
         id: 'ID',
         name: 'Наименование',
+        description: 'Описание',
         status: 'Статус',
         creator: 'Автор',
         executor: 'Исполнитель',
