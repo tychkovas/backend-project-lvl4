@@ -16,6 +16,9 @@ export default (app) => {
 
     .get('/tasks/new', { name: 'newTask', preValidation: app.authenticate }, async (req, reply) => {
       const task = new app.objection.models.task();
-      reply.render('tasks/new', { task });
+      const statuses = await app.objection.models.taskStatus.query();
+      const users = await app.objection.models.user.query();
+      reply.render('tasks/new', { task, statuses, users });
+      return reply;
     });
 };
