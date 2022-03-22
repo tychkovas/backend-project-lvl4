@@ -16,8 +16,7 @@ export default class User extends unique(BaseModel) {
   }
 
   fullName() {
-    return `${this.firstName} - ${this.lastName}`;
-    // return this.firstName + ' ' + this.lastName;
+    return `${this.firstName} ${this.lastName}`;
   }
 
   // @ts-ignore
@@ -62,6 +61,11 @@ export default class User extends unique(BaseModel) {
   // @ts-ignore
   set password(value) {
     this.passwordDigest = encrypt(value);
+  }
+
+  // @ts-ignore
+  get name() {
+    return this.fullName();
   }
 
   verifyPassword(password) {
