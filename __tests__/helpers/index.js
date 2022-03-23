@@ -25,3 +25,20 @@ export const getNewFakerUser = () => ({
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
 });
+
+export const getCookie = (response) => {
+  const [sessionCookie] = response.cookies;
+  expect(sessionCookie).toBeDefined();
+  const { name, value } = sessionCookie;
+  return { [name]: value };
+};
+
+export const signIn = async (app, params) => {
+  const response = await app.inject({
+    method: 'POST',
+    url: app.reverse('session'),
+    payload: { data: params },
+  });
+
+  return response;
+};

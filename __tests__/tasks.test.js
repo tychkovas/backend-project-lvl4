@@ -3,6 +3,8 @@ import getApp from '../server/index.js';
 import {
   getTestData,
   prepareData,
+  getCookie,
+  signIn,
 } from './helpers/index.js';
 
 describe('test tasks CRUD', () => {
@@ -11,23 +13,6 @@ describe('test tasks CRUD', () => {
   // let models;
   const testData = getTestData();
   let cookie;
-
-  const signIn = async (params) => {
-    const response = await app.inject({
-      method: 'POST',
-      url: app.reverse('session'),
-      payload: { data: params },
-    });
-
-    return response;
-  };
-
-  const getCookie = (response) => {
-    const [sessionCookie] = response.cookies;
-    expect(sessionCookie).toBeDefined();
-    const { name, value } = sessionCookie;
-    return { [name]: value };
-  };
 
   beforeAll(async () => {
     app = await getApp();
@@ -41,7 +26,7 @@ describe('test tasks CRUD', () => {
     await knex.migrate.latest();
     await prepareData(app);
 
-    const responseSignIn = await signIn(testData.users.existing);
+    const responseSignIn = await signIn(app, testData.users.existing);
     cookie = getCookie(responseSignIn);
   });
 
