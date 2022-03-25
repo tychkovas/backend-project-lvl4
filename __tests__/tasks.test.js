@@ -77,7 +77,7 @@ describe('test tasks CRUD', () => {
 
   describe('create', () => {
     // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('should by successful', async () => {
+    it('should by successful', async () => {
       const params = testData.tasks.new.data;
       const response = await app.inject({
         method: 'POST',
@@ -90,7 +90,7 @@ describe('test tasks CRUD', () => {
       expect(response.headers.location).toBe(app.reverse('tasks'));
 
       const expected = params;
-      const task = await models.tasks.query()
+      const task = await models.task.query()
         .findOne({ name: params.name });
 
       expect(task).toMatchObject(expected);
