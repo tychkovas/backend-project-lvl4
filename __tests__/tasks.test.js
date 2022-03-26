@@ -89,7 +89,11 @@ describe('test tasks CRUD', () => {
       expect(response.statusCode).toBe(302);
       expect(response.headers.location).toBe(app.reverse('tasks'));
 
-      const expected = params;
+      const expected = {
+        ...params,
+        statusId: Number(params.statusId),
+        executorId: Number(params.executorId),
+      };
       const task = await models.task.query()
         .findOne({ name: params.name });
 
