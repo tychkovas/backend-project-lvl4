@@ -26,9 +26,11 @@ export default (app) => {
       const users = await app.objection.models.user.query();
       try {
         const { data } = req.body;
+        req.log.trace(`createTasks:req.body: ${JSON.stringify(data)}`);
+
         data.creatorId = req.session.get('userId');
         data.statusId = Number(data.statusId);
-        data.executorId = Number(data.executorId);
+        data.executorId = (data.executorId === '') ? null : Number(data.executorId);
 
         req.log.info(`createTasks:data: ${JSON.stringify(data)}`);
         const task = await app.objection.models.taskStatus.fromJson(data);
