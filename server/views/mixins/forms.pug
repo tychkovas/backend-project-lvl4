@@ -53,8 +53,7 @@ mixin textarea(entity, propertyName, labelText)
       id= inputId
       name=getInputName(propertyName)
       class=classLine
-      value=_.get(entity, propertyName, '')
-    )
+    )= _.get(entity, propertyName, '')
 
 mixin submit(form = null)
   input(class='btn btn-primary' type='submit')&attributes(attributes)
