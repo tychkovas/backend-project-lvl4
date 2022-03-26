@@ -27,20 +27,23 @@ export default (app) => {
       try {
         const { data } = req.body;
         data.creatorId = req.session.get('userId');
-        req.log.info(`/tasks edit user = ${JSON.stringify(data)}`);
+        data.statusId = Number(data.statusId);
+        data.executorId = Number(data.executorId);
 
-        const task = await app.objection.models.taskStatus
-          .fromJson(data);
+        req.log.info(`createTasks:data: ${JSON.stringify(data)}`);
+        const task = await app.objection.models.taskStatus.fromJson(data);
 
         await app.objection.models.task.query().insert(task);
 
         req.flash('info', i18next.t('flash.tasks.create.success'));
         reply.redirect(app.reverse('tasks'));
         return reply;
-      } catch ({ data }) {
+      } catch (error) {
+        // const { data } = error;
+        req.log.error(`createTasks: ${JSON.stringify(error)}`);
         req.flash('error', i18next.t('flash.tasks.create.error'));
         reply.render('tasks/new', {
-          task: req.body.data, statuses, users, errors: data,
+          task: req.body.data, statuses, users, errors: error.data,
         });
         return reply;
       }
