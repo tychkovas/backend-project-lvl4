@@ -34,7 +34,7 @@ export default (app) => {
         data.executorId = (data.executorId === '') ? null : Number(data.executorId);
 
         req.log.info(`createTask:data: ${JSON.stringify(data)}`);
-        const task = await app.objection.models.taskStatus.fromJson(data);
+        const task = await app.objection.models.task.fromJson(data);
 
         await app.objection.models.task.query().insert(task);
 
@@ -47,6 +47,61 @@ export default (app) => {
         req.flash('error', i18next.t('flash.tasks.create.error'));
         reply.render('tasks/new', {
           task: req.body.data, statuses, users, errors: error.data,
+        });
+        return reply;
+      }
+    })
+
+    .get('/tasks/:id/edit', { name: 'editTask', preValidation: app.authenticate }, async (req, reply) => {
+      const id = Number(req.params?.id);
+      try {
+        const task = await app.objection.models.task.query().findById(id);
+
+        req.log.trace(`editTask:task: ${JSON.stringify(task)}`);
+
+        if (!task) throw new Error('Task not defined');
+
+        const statuses = await app.objection.models.taskStatus.query();
+        const users = await app.objection.models.user.query();
+
+        reply.render('tasks/edit', { task, statuses, users });
+        return reply;
+      } catch (err) {
+        req.log.error(`editTask:${JSON.stringify(err)}`);
+        reply.redirect(app.reverse('tasks'));
+        return reply;
+      }
+    })
+
+    .patch('/tasks/:id', { name: 'updateTask', preValidation: app.authenticate }, async (req, reply) => {
+      const id = Number(req.params?.id);
+
+      try {
+        const { data } = req.body;
+        req.log.trace(`updateTask:req.body: ${JSON.stringify(data)}`);
+
+        data.creatorId = req.session.get('userId');
+        data.statusId = Number(data.statusId);
+        data.executorId = (data.executorId === '') ? null : Number(data.executorId);
+
+        req.log.info(`updateTask:data: ${JSON.stringify(data)}`);
+        const task = await app.objection.models.task.fromJson(data);
+
+        const taskUpdated = await app.objection.models.task.query()
+          .findById(id);
+
+        await taskUpdated.$query().update(task);
+
+        req.flash('info', i18next.t('flash.tasks.edit.success'));
+        reply.redirect(app.reverse('tasks'));
+        return reply;
+      } catch (err) {
+        req.log.error(`updateTask: ${JSON.stringify(err)}`);
+        const statuses = await app.objection.models.taskStatus.query();
+        const users = await app.objection.models.user.query();
+        req.flash('error', i18next.t('flash.tasks.edit.error'));
+        reply.render('tasks/edit', {
+          task: { ...req.body.data, curId: id }, user: { id }, statuses, users, error: err.data,
         });
         return reply;
       }
