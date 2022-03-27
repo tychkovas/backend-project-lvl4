@@ -101,7 +101,7 @@ export default (app) => {
         const users = await app.objection.models.user.query();
         req.flash('error', i18next.t('flash.tasks.edit.error'));
         reply.render('tasks/edit', {
-          task: { ...req.body.data, curId: id }, user: { id }, statuses, users, error: err.data,
+          task: { ...req.body.data, id }, statuses, users, error: err.data,
         });
         return reply;
       }

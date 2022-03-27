@@ -10,4 +10,4 @@ block content
     +select(task, 'statusId', t('views.tasks.status'), statuses,  errors)
     +select(task, 'executorId', t('views.tasks.executor'), users, errors)
 
-    +submit(user)(value=t('views.tasks.new.submit'))
+    +submit(task)(value=t('views.tasks.new.submit'))

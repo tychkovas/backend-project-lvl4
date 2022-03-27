@@ -67,7 +67,7 @@ export default (app) => {
       } catch ({ data }) {
         req.log.info(`/status patch: fail. data = ${data}`);
         req.flash('error', i18next.t('flash.statuses.edit.error'));
-        reply.render('statuses/edit', { user: { ...req.body.data, curId: id }, error: data });
+        reply.render('statuses/edit', { status: { ...req.body.data, id }, errors: data });
         return reply;
       }
     })
