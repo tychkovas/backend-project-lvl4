@@ -78,6 +78,16 @@ describe('test tasks CRUD', () => {
     expect(response.statusCode).toBe(200);
   });
 
+  it('show', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: app.reverse('showTask', { id: 1 }),
+      cookies: cookie,
+    });
+
+    expect(response.statusCode).toBe(200);
+  });
+
   describe('create', () => {
     // eslint-disable-next-line jest/no-disabled-tests
     it('should by successful', async () => {
