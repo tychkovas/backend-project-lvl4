@@ -55,6 +55,24 @@
           "lastName": "murray"
         }
       }
+    },
+    "existing": {
+      "data": {
+        "name": "задача 1",
+        "description": "описание 1",
+        "statusId": 1,
+        "creatorId": 2,
+        "executorId": 1
+      }
+    },
+    "updated":  {
+      "data": {
+        "name": "Обновленная задача 1",
+        "description": "Обновленое описание  задачи 1",
+        "statusId": 2,
+        "creatorId": 2,
+        "executorId": 1
+      }
     }
   }
 }

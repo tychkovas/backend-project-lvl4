@@ -5,6 +5,9 @@ import {
   prepareData,
   getCookie,
   signIn,
+  getIdInstanceFromModel,
+  getFlashMessage,
+  typesFashMessage as flash,
 } from './helpers/index.js';
 
 describe('test tasks CRUD', () => {
@@ -109,6 +112,57 @@ describe('test tasks CRUD', () => {
       // ' успешно создан'
       expect(responseRedirect.body).toContain(i18next.t('flash.tasks.create.success'));
       expect(responseRedirect.body).toContain('<div class="alert alert-info">Задача успешно создана</div>');
+    });
+  });
+
+  describe('update', () => {
+    it('should by successful', async () => {
+      const paramsExixttingTask = testData.tasks.existing.data;
+      const id = await getIdInstanceFromModel(models.task, paramsExixttingTask);
+
+      const responseEditTask = await app.inject({
+        method: 'GET',
+        url: app.reverse('createTask', { id }),
+        cookies: cookie,
+      });
+
+      expect(responseEditTask.statusCode).toBe(200);
+
+      const paramsUpdated = testData.tasks.updated.data;
+
+      const response = await app.inject({
+        method: 'PATCH',
+        url: app.reverse('updateTask', { id }),
+        payload: {
+          data: paramsUpdated,
+        },
+        cookies: cookie,
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('tasks'));
+
+      const expected = paramsUpdated;
+
+      const task = await models.task.query()
+        .findOne({ name: paramsUpdated.name });
+      expect(task).toMatchObject(expected);
+
+      const nonExistingTask = await models.task.query()
+        .findOne({ name: paramsExixttingTask.name });
+      expect(nonExistingTask).toBeUndefined();
+
+      cookie = getCookie(response);
+
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: app.reverse('tasks'),
+        cookies: cookie,
+      });
+      expect(responseRedirect.statusCode).toBe(200);
+
+      expect(responseRedirect.body).toContain(i18next.t('flash.tasks.edit.success'));
+      expect(responseRedirect.body).toContain(getFlashMessage(flash.info, 'flash.tasks.edit.success'));
     });
   });
 
