@@ -21,18 +21,19 @@ export default (app) => {
       reply.render('tasks/new', { task, statuses, users });
       return reply;
     })
-    .post('/tasks', { name: 'createTasks', preValidation: app.authenticate }, async (req, reply) => {
+
+    .post('/tasks', { name: 'createTask', preValidation: app.authenticate }, async (req, reply) => {
       const statuses = await app.objection.models.taskStatus.query();
       const users = await app.objection.models.user.query();
       try {
         const { data } = req.body;
-        req.log.trace(`createTasks:req.body: ${JSON.stringify(data)}`);
+        req.log.trace(`createTask:req.body: ${JSON.stringify(data)}`);
 
         data.creatorId = req.session.get('userId');
         data.statusId = Number(data.statusId);
         data.executorId = (data.executorId === '') ? null : Number(data.executorId);
 
-        req.log.info(`createTasks:data: ${JSON.stringify(data)}`);
+        req.log.info(`createTask:data: ${JSON.stringify(data)}`);
         const task = await app.objection.models.taskStatus.fromJson(data);
 
         await app.objection.models.task.query().insert(task);
@@ -42,7 +43,7 @@ export default (app) => {
         return reply;
       } catch (error) {
         // const { data } = error;
-        req.log.error(`createTasks: ${JSON.stringify(error)}`);
+        req.log.error(`createTask: ${JSON.stringify(error)}`);
         req.flash('error', i18next.t('flash.tasks.create.error'));
         reply.render('tasks/new', {
           task: req.body.data, statuses, users, errors: error.data,
