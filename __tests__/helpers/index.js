@@ -3,6 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import faker from '@faker-js/faker';
+import i18next from 'i18next';
 
 const getFixturePath = (filename) => path.join(__dirname, '..', '..', '__fixtures__', filename);
 const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8').trim();
@@ -42,3 +43,17 @@ export const signIn = async (app, params) => {
 
   return response;
 };
+
+// const id = await getIdInstanceFromModel(models.table, { params, ... });
+export const getIdInstanceFromModel = async (modelTable, paramsInstance) => {
+  const instance = await modelTable.query().findOne(paramsInstance);
+  expect(instance).toBeDefined();
+  return instance?.id;
+};
+
+export const typesFashMessage = {
+  info: 'info',
+  danger: 'danger',
+};
+
+export const getFlashMessage = (type = typesFashMessage.info, message) => `<div class="alert alert-${type}">${i18next.t(message)}</div>`;
