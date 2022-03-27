@@ -2,7 +2,7 @@ import objectionUnique from 'objection-unique';
 
 import BaseModel from './BaseModel.js';
 
-const unique = objectionUnique({ fields: ['email'] });
+const unique = objectionUnique({ fields: ['name'] });
 
 export default class Task extends unique(BaseModel) {
   static get tableName() {
@@ -44,7 +44,7 @@ export default class Task extends unique(BaseModel) {
         modelClass: 'TaskStatus',
 
         join: {
-          from: 'task.statusId',
+          from: 'tasks.statusId',
           to: 'task_statuses.id',
         },
       },
@@ -61,7 +61,7 @@ export default class Task extends unique(BaseModel) {
 
       executor: {
         relation: BaseModel.BelongsToOneRelation,
-        midelClass: 'User',
+        modelClass: 'User',
 
         join: {
           from: 'tasks.executorId',

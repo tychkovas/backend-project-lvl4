@@ -42,8 +42,8 @@ export default class User extends unique(BaseModel) {
         model: 'Task',
 
         join: {
-          from: 'tasks.id',
-          to: 'users.id',
+          from: 'users.id',
+          to: 'tasks.creatorId',
         },
       },
       assignedTasks: {
@@ -51,8 +51,8 @@ export default class User extends unique(BaseModel) {
         model: 'Task',
 
         join: {
-          from: 'tasks.id',
-          to: 'users.id',
+          from: 'users.id',
+          to: 'tasks.executorId',
         },
       },
     };
