@@ -14,6 +14,27 @@ export default (app) => {
         return reply;
       })
 
+    .get('/task/:id', { name: 'showTask', preValidation: app.authenticate }, async (req, reply) => {
+      const id = Number(req.params?.id);
+      try {
+        const task = await app.objection.models.task.query().findById(id);
+        req.log.trace(`showTask:task: ${JSON.stringify(task)}`);
+
+        if (!task) throw new Error('Task not defined');
+
+        await task.$fetchGraph('[status, creator, executor]');
+
+        req.log.trace(`showTask:formTask: ${JSON.stringify(task)}`);
+
+        reply.render('tasks/show', { task });
+        return reply;
+      } catch (err) {
+        req.log.error(`task:${JSON.stringify(err)}`);
+        reply.redirect(app.reverse('tasks'));
+        return reply;
+      }
+    })
+
     .get('/tasks/new', { name: 'newTask', preValidation: app.authenticate }, async (req, reply) => {
       const task = new app.objection.models.task();
       const statuses = await app.objection.models.taskStatus.query();
