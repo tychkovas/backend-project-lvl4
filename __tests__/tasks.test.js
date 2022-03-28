@@ -176,6 +176,68 @@ describe('test tasks CRUD', () => {
     });
   });
 
+  describe('delete', () => {
+    it('should by successful', async () => {
+      const paramsExistingTask = testData.tasks.existing.data;
+      const id = await getIdInstanceFromModel(models.task, paramsExistingTask);
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: app.reverse('deleteTask', { id }),
+        cookies: cookie,
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('tasks'));
+
+      const nonExistentTask = await models.task.query()
+        .findOne(paramsExistingTask);
+      expect(nonExistentTask).toBeUndefined();
+
+      // провека наличия флэш-сообщения
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: app.reverse('tasks'),
+        cookies: getCookie(response),
+      });
+      expect(responseRedirect.statusCode).toBe(200);
+
+      // Задача успешно удалена
+      expect(responseRedirect.body).toContain(i18next.t('flash.tasks.delete.success'));
+      expect(responseRedirect.body).toContain(getFlashMessage(flash.info, 'flash.tasks.delete.success'));
+    });
+
+    it('should be with access error', async () => {
+      const paramsAlternativeTask = testData.tasks.alternative.data;
+      const id = await getIdInstanceFromModel(models.task, paramsAlternativeTask);
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: app.reverse('deleteTask', { id }),
+        cookies: cookie,
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('tasks'));
+
+      const existentTask = await models.task.query()
+        .findOne({ name: paramsAlternativeTask.name });
+      expect(existentTask).toMatchObject(paramsAlternativeTask);
+
+      // провека наличия флэш-сообщения
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: app.reverse('tasks'),
+        cookies: getCookie(response),
+      });
+      expect(responseRedirect.statusCode).toBe(200);
+
+      // Задачу может удалить только её автор
+      expect(responseRedirect.body).toContain(i18next.t('flash.tasks.delete.accessError'));
+      expect(responseRedirect.body).toContain(getFlashMessage(flash.danger, 'flash.tasks.delete.accessError'));
+    });
+  });
+
   afterEach(async () => {
     await knex.migrate.rollback();
   });
