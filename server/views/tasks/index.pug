@@ -1,5 +1,8 @@
 extends ../layouts/application.pug
 
+block header
+  = t('views.tasks.heading')
+
 block content
   a.nav-link(href=route('newTask'))= t('views.tasks.actions.new')
   table.table.table-striped.table-dark

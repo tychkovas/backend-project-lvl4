@@ -79,6 +79,7 @@ module.exports = {
         },
       },
       statuses: {
+        heading: 'Статусы',
         id: 'ID',
         name: 'Наименование',
         createdAt: 'Дата создания',
@@ -98,6 +99,7 @@ module.exports = {
       },
 
       tasks: {
+        heading: 'Задачи',
         id: 'ID',
         name: 'Наименование',
         description: 'Описание',
@@ -121,6 +123,7 @@ module.exports = {
       },
 
       users: {
+        heading: 'Пользователи',
         id: 'ID',
         firstName: 'Имя',
         lastName: 'Фамилия',
