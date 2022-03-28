@@ -99,7 +99,7 @@ export default (app) => {
 
       try {
         const { data } = req.body;
-        req.log.trace(`updateTask:req.body: ${JSON.stringify(data)}`);
+        req.log.debug(`updateTask:req.body: ${JSON.stringify(data)}`);
 
         data.creatorId = req.session.get('userId');
         data.statusId = Number(data.statusId);
@@ -126,5 +126,27 @@ export default (app) => {
         });
         return reply;
       }
+    })
+
+    .delete('/tasks/:id', { name: 'deleteTask', preValidation: app.authenticate }, async (req, reply) => {
+      try {
+        const id = Number(req.params?.id);
+        const task = await app.objection.models.task.query().findById(id);
+        if (task.creatorId === req.session.get('userId')) {
+          req.log.info(`deleteTask: task = ${task}`);
+          const idDeleted = await task.$query().delete();
+          req.log.info(`deleteTask: id = ${idDeleted}`);
+          req.flash('info', i18next.t('flash.tasks.delete.success'));
+        } else {
+          req.log.error(`deleteTask: task created by userId ${task.creatorId} `);
+          req.flash('error', i18next.t('flash.tasks.delete.accessError'));
+        }
+      } catch (err) {
+        req.log.error(`deleteTask: ${JSON.stringify(err)}`);
+        req.flash('error', i18next.t('flash.tasks.delete.error'));
+      }
+
+      reply.redirect(app.reverse('tasks'));
+      return reply;
     });
 };
