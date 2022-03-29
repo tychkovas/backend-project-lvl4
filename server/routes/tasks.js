@@ -14,7 +14,7 @@ export default (app) => {
         return reply;
       })
 
-    .get('/task/:id', { name: 'showTask', preValidation: app.authenticate }, async (req, reply) => {
+    .get('/tasks/:id', { name: 'showTask', preValidation: app.authenticate }, async (req, reply) => {
       const id = Number(req.params?.id);
       try {
         const task = await app.objection.models.task.query().findById(id);
