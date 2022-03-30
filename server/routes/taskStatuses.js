@@ -1,4 +1,5 @@
 import i18next from 'i18next';
+import _ from 'lodash';
 
 export default (app) => {
   app
@@ -72,14 +73,22 @@ export default (app) => {
       }
     })
     .delete('/statuses/:id', { name: 'deleteStatus', preValidation: app.authenticate }, async (req, reply) => {
+      const id = Number(req.params?.id);
       try {
-        const id = Number(req.params?.id);
-        const idDeleted = await app.objection.models.taskStatus.query()
-          .deleteById(id);
-        req.log.info(`/statuses delete: id = ${idDeleted}`);
-        req.flash('info', i18next.t('flash.statuses.delete.success'));
-      } catch ({ data }) {
-        req.log.error(`/statuses delete: fail  ${data}`);
+        const status = await app.objection.models.taskStatus.query().findById(id);
+
+        const reletedTasks = await status.$relatedQuery('tasks');
+
+        if (_.isEmpty(reletedTasks)) {
+          await status.$query().delete();
+          req.log.info(`deleteStatus: statuses: ${JSON.stringify(status)}`);
+          req.flash('info', i18next.t('flash.statuses.delete.success'));
+        } else {
+          req.log.info('deleteStatus: fail: status in use');
+          req.flash('error', i18next.t('flash.statuses.delete.error'));
+        }
+      } catch (err) {
+        req.log.error(`deleteStatus: fail:  ${JSON.stringify(err)}`);
         req.flash('error', i18next.t('flash.statuses.delete.error'));
       }
       reply.redirect(app.reverse('statuses'));
