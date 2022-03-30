@@ -22,10 +22,13 @@
   
   "taskStatuses": {
     "existing": {
-      "name": "на тестировании"
+      "name": "новый"
     },
     "updated": {
       "name": "на проверке"
+    },
+    "unrelated":   {
+      "name": "завершен"
     }
   },
 

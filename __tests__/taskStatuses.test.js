@@ -190,7 +190,7 @@ describe('test statuses CRUD', () => {
 
   describe('delete', () => {
     it('should by successful', async () => {
-      const paramsExistingStatus = testData.taskStatuses.existing;
+      const paramsExistingStatus = testData.taskStatuses.unrelated;
       const id = await getIdInstance('taskStatus', paramsExistingStatus);
 
       const response = await app.inject({
@@ -217,6 +217,35 @@ describe('test statuses CRUD', () => {
       // 'Статус успешно удалён'
       expect(responseRedirect.body).toContain(i18next.t('flash.statuses.delete.success'));
       expect(responseRedirect.body).toContain('<div class="alert alert-info">Статус успешно удалён</div>');
+    });
+    it('should by fail (in use)', async () => {
+      const paramsExistingStatus = testData.taskStatuses.existing;
+      const id = await getIdInstance('taskStatus', paramsExistingStatus);
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/statuses/${id}`,
+        cookies: cookie,
+      });
+
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe(app.reverse('statuses'));
+
+      const existentStatus = await models.taskStatus.query()
+        .findOne(paramsExistingStatus);
+      expect(existentStatus).toMatchObject(paramsExistingStatus);
+
+      // провека наличия флэш-сообщения
+      const responseRedirect = await app.inject({
+        method: 'GET',
+        url: app.reverse('statuses'),
+        cookies: getCookie(response),
+      });
+      expect(responseRedirect.statusCode).toBe(200);
+
+      // 'Не удалось удалить статус'
+      expect(responseRedirect.body).toContain(i18next.t('flash.statuses.delete.error'));
+      expect(responseRedirect.body).toContain('<div class="alert alert-danger">Не удалось удалить статус</div>');
     });
   });
 
