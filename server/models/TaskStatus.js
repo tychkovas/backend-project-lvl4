@@ -26,7 +26,7 @@ export default class TaskStatus extends unique(BaseModel) {
     return {
       tasks: {
         relation: BaseModel.HasManyRelation,
-        model: 'Task',
+        modelClass: 'Task',
 
         join: {
           from: 'task_statuses.id',
