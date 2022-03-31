@@ -39,7 +39,7 @@ export default class User extends unique(BaseModel) {
     return {
       createdTasks: {
         relation: BaseModel.HasManyRelation,
-        model: 'Task',
+        modelClass: 'Task',
 
         join: {
           from: 'users.id',
@@ -47,8 +47,8 @@ export default class User extends unique(BaseModel) {
         },
       },
       assignedTasks: {
-        relation: BaseModel.BelongsToOneRelation,
-        model: 'Task',
+        relation: BaseModel.HasManyRelation,
+        modelClass: 'Task',
 
         join: {
           from: 'users.id',
