@@ -26,6 +26,7 @@ mixin select(entity, propertyName, labelText, options, errors = {})
   - propertyErrors = _.get(errors, propertyName)
   - classLine = 'form-control' + (_.isEmpty(propertyErrors) ? '' : ' is-invalid')
   - inputId = getInputId(propertyName)
+  - selectedId=_.get(entity, propertyName, '')
   .mb-3(class=(errors[propertyName] && 'has-danger'))
     label(
       for= inputId
@@ -34,11 +35,13 @@ mixin select(entity, propertyName, labelText, options, errors = {})
       id= inputId
       name=getInputName(propertyName)
       class=classLine
-      value=_.get(entity, propertyName, '')
     )&attributes(attributes)
       option
       each item in options
-        option(value = item.id)= item.name
+        if  (item.id === selectedId)
+          option(value = item.id selected="selected")= item.name
+        else
+          option(value = item.id )= item.name
     if !_.isEmpty(propertyErrors)
       .invalid-feedback= propertyErrors.map(({ message }) => message).join('. ')
 
