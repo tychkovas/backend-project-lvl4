@@ -5,10 +5,14 @@ export default (app) => {
     .get('/tasks',
       { name: 'tasks', preValidation: app.authenticate },
       async (req, reply) => {
-        const tasks = await app.objection.models.task.query();
+        const tasks = await app.objection.models.task.query()
+          .withGraphJoined('[status, creator, executor]');
+        //  await Promise.all(tasks.map((task) => task.$fetchGraph('[status, creator, executor]')));
+
+        // req.log.info(`tasks: ${JSON.stringify(tasks)}`);
 
         Object.entries(tasks).forEach(([key, value]) => {
-          req.log.info(`tasks: ${key}:${value.name}`);
+          req.log.trace(`tasks: ${key}:${value.name}:${value.creator.name}`);
         });
         reply.render('tasks/index', { tasks });
         return reply;

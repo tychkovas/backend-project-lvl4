@@ -19,10 +19,11 @@ block content
       each task in tasks
         tr
           td= task.id
-          td= task.name
-          td= task.statusId
-          td= task.creatorId
-          td= task.executorId
+          td
+            a(href=route('showTask', { id:task.id }))= task.name
+          td= task.status.name
+          td= task.creator.name
+          td= (task.executor) ? task.executor.name : ''
           td= formatDate(task.createdAt)
           td
             a(href=`/tasks/${task.id}/edit`)= t('views.tasks.actions.edit')
