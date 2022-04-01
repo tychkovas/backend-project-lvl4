@@ -2,12 +2,39 @@ extends ../layouts/application.pug
 
 block header
   = task.name
-  h2(align="right")
-    = task.creator.name
 
 block content
-  +formFor()(action=`/tasks/${task.id}` method='post')
-    +input(task, 'name', t('views.tasks.name'), errors)(type="text")
-    +textarea(task, 'description', t('views.tasks.description'))
-    +input(task.status, 'name', t('views.tasks.status'),  errors)(type="text")
-    +input(task.executor, 'name', t('views.tasks.executor'))(type="text")
+  .row.mt-5.p-5.shadow
+    .col-12.col-md-7.order-2.order-md-1
+      .lead.fw-normal.mb-4
+        = task.description
+
+    .col-12.col-md-5.border-start.px-3.order-1.order-md-2.mb-3.mb-md-0
+      .mb-2
+        span.me-1.badge.bg-info.text-white
+          = task.status.name
+
+      .d-flex.flex-wrap.mb-3
+        span.text-muted.me-2
+          = t('views.tasks.creator')+':'
+        span 
+          = task.creator.name
+      
+      .d-flex.flex-wrap.mb-3
+        span.text-muted.me-2
+          = t('views.tasks.executor')+':'
+        span 
+          = _.get(task.executor, 'name')
+      
+      .d-flex.flex-wrap.mb-3
+        span.text-muted.me-2
+          = t('views.tasks.createdAt')+':'
+        span 
+          = formatDate(task.createdAt)
+      .d-flex
+        span.text-muted
+          a(href=route('editTask', { id: task.id }))= t('views.tasks.actions.edit')
+
+          form(action=route('deleteTask', { id: task.id }), method='post')
+            input(name='_method', type='hidden', value='delete')
+            input.btn.btn-link(type='submit', value= t('views.tasks.actions.delete'))
