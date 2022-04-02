@@ -1,4 +1,5 @@
 import i18next from 'i18next';
+import _ from 'lodash';
 
 export default (app) => {
   app
@@ -6,7 +7,7 @@ export default (app) => {
       { name: 'tasks', preValidation: app.authenticate },
       async (req, reply) => {
         const tasks = await app.objection.models.task.query()
-          .withGraphJoined('[status, creator, executor]');
+          .withGraphFetched('[status, creator, executor]');
         //  await Promise.all(tasks.map((task) => task.$fetchGraph('[status, creator, executor]')));
 
         // req.log.info(`tasks: ${JSON.stringify(tasks)}`);
@@ -26,7 +27,7 @@ export default (app) => {
 
         if (!task) throw new Error('Task not defined');
 
-        await task.$fetchGraph('[status, creator, executor]');
+        await task.$fetchGraph('[status, creator, executor, labels]');
 
         req.log.trace(`showTask:formTask: ${JSON.stringify(task)}`);
 
@@ -43,13 +44,14 @@ export default (app) => {
       const task = new app.objection.models.task();
       const statuses = await app.objection.models.taskStatus.query();
       const users = await app.objection.models.user.query();
-      reply.render('tasks/new', { task, statuses, users });
+      const labels = await app.objection.models.label.query();
+      reply.render('tasks/new', {
+        task, statuses, users, labels,
+      });
       return reply;
     })
 
     .post('/tasks', { name: 'createTask', preValidation: app.authenticate }, async (req, reply) => {
-      const statuses = await app.objection.models.taskStatus.query();
-      const users = await app.objection.models.user.query();
       try {
         const { data } = req.body;
         req.log.trace(`createTask:req.body: ${JSON.stringify(data)}`);
@@ -57,11 +59,41 @@ export default (app) => {
         data.creatorId = req.session.get('userId');
         data.statusId = Number(data.statusId);
         data.executorId = (data.executorId === '') ? null : Number(data.executorId);
+        const task = await app.objection.models.task.fromJson(_.omit(data, 'labels')); // _.omit(data, 'labels');
 
-        req.log.info(`createTask:data: ${JSON.stringify(data)}`);
-        const task = await app.objection.models.task.fromJson(data);
+        const insertedGraphTask = await app.objection.models.task.transaction(async (trx) => {
+          const newTask = await app.objection.models.task.query(trx).insert(task);
 
-        await app.objection.models.task.query().insert(task);
+          // const labelIds = (data?.labels) ? [data.labels].flat().map(Number) : [];
+          const labelIds = (data?.labels) ? (
+            await Promise.all([data.labels].flat().map(async (item) => {
+              if (Number(item)) {
+                return Number(item);
+              }
+
+              const newLabel = JSON.parse(item);
+              req.log.trace(`createTask: new label = ${item}`);
+              if (newLabel?.name) {
+                await app.objection.models.label.fromJson(newLabel);
+                const label = await app.objection.models.label.query(trx)
+                  .insert(newLabel);
+                return label?.id;
+              }
+              throw new Error(`New task Label invalid format '${item}'`);
+            }))
+          ) : [];
+
+          const reletedLabels = await app.objection.models.label.query(trx).findByIds(labelIds);
+
+          req.log.trace(`createTask:reletedLabels: ${JSON.stringify(reletedLabels)}`);
+
+          await Promise.all(labelIds.map((label) => newTask.$relatedQuery('labels', trx).relate(label)));
+          req.log.trace(`createTask:reletedLabels: ${JSON.stringify(reletedLabels)}`);
+
+          return newTask;
+        });
+
+        req.log.trace(`createTask:insertedTask: ${JSON.stringify(insertedGraphTask)}`);
 
         req.flash('info', i18next.t('flash.tasks.create.success'));
         reply.redirect(app.reverse('tasks'));
@@ -70,8 +102,12 @@ export default (app) => {
         // const { data } = error;
         req.log.error(`createTask: ${JSON.stringify(error)}`);
         req.flash('error', i18next.t('flash.tasks.create.error'));
+
+        const statuses = await app.objection.models.taskStatus.query();
+        const users = await app.objection.models.user.query();
+        const labels = await app.objection.models.label.query();
         reply.render('tasks/new', {
-          task: req.body.data, statuses, users, errors: error.data,
+          task: req.body.data, statuses, users, labels, errors: error.data,
         });
         return reply;
       }
@@ -82,14 +118,20 @@ export default (app) => {
       try {
         const task = await app.objection.models.task.query().findById(id);
 
+        await task.$fetchGraph('[labels]');
+        task.labels = task.labels.map((label) => label.id);
+
         req.log.trace(`editTask:task: ${JSON.stringify(task)}`);
 
         if (!task) throw new Error('Task not defined');
 
         const statuses = await app.objection.models.taskStatus.query();
         const users = await app.objection.models.user.query();
+        const labels = await app.objection.models.label.query();
 
-        reply.render('tasks/edit', { task, statuses, users });
+        reply.render('tasks/edit', {
+          task, statuses, users, labels,
+        });
         return reply;
       } catch (err) {
         req.log.error(`editTask:${JSON.stringify(err)}`);
@@ -112,10 +154,43 @@ export default (app) => {
         req.log.info(`updateTask:data: ${JSON.stringify(data)}`);
         const task = await app.objection.models.task.fromJson(data);
 
-        const taskUpdated = await app.objection.models.task.query()
-          .findById(id);
+        const updatedGraphTask = await app.objection.models.task.transaction(async (trx) => {
+          const taskUpdated = await app.objection.models.task.query(trx)
+            .findById(id);
 
-        await taskUpdated.$query().update(task);
+          const unrelatedLabels = await taskUpdated.$relatedQuery('labels', trx)
+            .unrelate();
+          req.log.trace(`updateTask: unrelatedLabels: ${unrelatedLabels}`);
+
+          // const labelIds = [data.labels].flat().map(Number);
+          const labelIds = (data?.labels) ? (
+            await Promise.all([data.labels].flat().map(async (item) => {
+              if (Number(item)) {
+                return Number(item);
+              }
+
+              const newLabel = JSON.parse(item);
+              req.log.trace(`updateTask: new label = ${item}`);
+              if (newLabel?.name) {
+                await app.objection.models.label.fromJson(newLabel);
+                const label = await app.objection.models.label.query(trx)
+                  .insert(newLabel);
+                return label?.id;
+              }
+              throw new Error(`New task Label invalid format '${item}'`);
+            }))
+          ) : [];
+          req.log.trace(`updateTask: labelIds: ${labelIds}`);
+          const reletedLabels = await app.objection.models.label.query(trx).findByIds(labelIds);
+          req.log.trace(`updateTask: reletedLabels:${reletedLabels}`);
+          await taskUpdated.$query(trx).update(task);
+          await Promise.all(labelIds.map((label) => taskUpdated.$relatedQuery('labels', trx).relate(label)));
+          req.log.trace(`updateTask: taskUpdated:${taskUpdated}`);
+
+          return taskUpdated;
+        });
+
+        req.log.trace(`updateTask:inserted: ${JSON.stringify(updatedGraphTask)}`);
 
         req.flash('info', i18next.t('flash.tasks.edit.success'));
         reply.redirect(app.reverse('tasks'));
@@ -124,9 +199,10 @@ export default (app) => {
         req.log.error(`updateTask: ${JSON.stringify(err)}`);
         const statuses = await app.objection.models.taskStatus.query();
         const users = await app.objection.models.user.query();
+        const labels = await app.objection.models.label.query();
         req.flash('error', i18next.t('flash.tasks.edit.error'));
         reply.render('tasks/edit', {
-          task: { ...req.body.data, id }, statuses, users, error: err.data,
+          task: { ...req.body.data, id }, statuses, users, labels, error: err.data,
         });
         return reply;
       }
@@ -137,10 +213,18 @@ export default (app) => {
         const id = Number(req.params?.id);
         const task = await app.objection.models.task.query().findById(id);
         if (task.creatorId === req.session.get('userId')) {
-          req.log.info(`deleteTask: task = ${task}`);
-          const idDeleted = await task.$query().delete();
-          req.log.info(`deleteTask: id = ${idDeleted}`);
-          req.flash('info', i18next.t('flash.tasks.delete.success'));
+          const returnValue = await app.objection.models.task
+            .transaction(async (trx) => {
+              req.log.trace(`deleteTask: task = ${task}`);
+              const unrelatedLabels = await task.$relatedQuery('labels', trx)
+                .unrelate();
+              req.log.trace(`updateTask: unrelatedLabels: ${unrelatedLabels}`);
+              const idDeleted = await task.$query(trx).delete();
+              req.log.info(`deleteTask: id = ${idDeleted}`);
+              req.flash('info', i18next.t('flash.tasks.delete.success'));
+              return task;
+            });
+          req.log.trace(`deleteTask: delete task succesfull: = ${returnValue}`);
         } else {
           req.log.error(`deleteTask: task created by userId ${task.creatorId} `);
           req.flash('error', i18next.t('flash.tasks.delete.accessError'));

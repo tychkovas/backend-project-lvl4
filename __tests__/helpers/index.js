@@ -18,6 +18,8 @@ export const prepareData = async (app) => {
   await knex('users').insert(getFixtureData('users.json'));
   await knex('task_statuses').insert(getFixtureData('task_statuses.json'));
   await knex('tasks').insert(getFixtureData('tasks.json'));
+  await knex('labels').insert(getFixtureData('labels.json'));
+  await knex('tasks_labels').insert(getFixtureData('tasks_labels.json'));
 };
 
 export const getNewFakerUser = () => ({
@@ -54,6 +56,7 @@ export const getIdInstanceFromModel = async (modelTable, paramsInstance) => {
 export const typesFashMessage = {
   info: 'info',
   danger: 'danger',
+  success: 'success',
 };
 
 export const getFlashMessage = (type = typesFashMessage.info, message) => `<div class="alert alert-${type}">${i18next.t(message)}</div>`;

@@ -1,4 +1,5 @@
 import i18next from 'i18next';
+import _ from 'lodash';
 import getApp from '../server/index.js';
 import {
   getTestData,
@@ -103,7 +104,7 @@ describe('test tasks CRUD', () => {
       expect(response.headers.location).toBe(app.reverse('tasks'));
 
       const expected = {
-        ...params,
+        ..._.omit(params, 'labels'),
         statusId: Number(params.statusId),
         executorId: Number(params.executorId),
       };
@@ -111,6 +112,15 @@ describe('test tasks CRUD', () => {
         .findOne({ name: params.name });
 
       expect(task).toMatchObject(expected);
+
+      await task.$fetchGraph('[labels]');
+
+      const expectedLabels = params.labels;
+      expectedLabels[0] = await models.label.query().findById(Number(params.labels[0]));
+      expectedLabels[1] = await models.label.query().findById(Number(params.labels[1]));
+      expectedLabels[2] = await models.label.query().findOne(JSON.parse(params.labels[2]));
+
+      expect(task.labels).toEqual(expect.arrayContaining(expectedLabels));
 
       // провека наличия флэш-сообщения
       const responseRedirect = await app.inject({
@@ -152,11 +162,24 @@ describe('test tasks CRUD', () => {
       expect(response.statusCode).toBe(302);
       expect(response.headers.location).toBe(app.reverse('tasks'));
 
-      const expected = paramsUpdated;
+      const expected = {
+        ..._.omit(paramsUpdated, 'labels'),
+        statusId: Number(paramsUpdated.statusId),
+        executorId: Number(paramsUpdated.executorId),
+      };
 
       const task = await models.task.query()
         .findOne({ name: paramsUpdated.name });
       expect(task).toMatchObject(expected);
+
+      await task.$fetchGraph('[labels]');
+
+      const expectedLabels = paramsUpdated.labels;
+      expectedLabels[0] = await models.label.query().findById(Number(paramsUpdated.labels[0]));
+      expectedLabels[1] = await models.label.query().findById(Number(paramsUpdated.labels[1]));
+      expectedLabels[2] = await models.label.query().findOne(JSON.parse(paramsUpdated.labels[2]));
+
+      expect(task.labels).toEqual(expect.arrayContaining(expectedLabels));
 
       const nonExistingTask = await models.task.query()
         .findOne({ name: paramsExixttingTask.name });
