@@ -6,7 +6,7 @@ export default (app) => {
       { name: 'tasks', preValidation: app.authenticate },
       async (req, reply) => {
         const tasks = await app.objection.models.task.query()
-          .withGraphJoined('[status, creator, executor]');
+          .withGraphFetched('[status, creator, executor]');
         //  await Promise.all(tasks.map((task) => task.$fetchGraph('[status, creator, executor]')));
 
         // req.log.info(`tasks: ${JSON.stringify(tasks)}`);
