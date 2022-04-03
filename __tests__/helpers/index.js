@@ -54,6 +54,7 @@ export const getIdInstanceFromModel = async (modelTable, paramsInstance) => {
 export const typesFashMessage = {
   info: 'info',
   danger: 'danger',
+  success: 'success',
 };
 
 export const getFlashMessage = (type = typesFashMessage.info, message) => `<div class="alert alert-${type}">${i18next.t(message)}</div>`;
