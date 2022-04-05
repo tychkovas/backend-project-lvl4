@@ -19,7 +19,7 @@ block content
           td= label.name
           td= formatDate(label.createdAt)
           td
-            a(href=`/labels/${label.id}/edit`)= t('views.labels.actions.edit')
-            form(action=`/labels/${label.id}`, method='post')
+            a(href=route('openForEditLabel', { id: label.id}))= t('views.labels.actions.edit')
+            form(action=route('deleteLabel', { id: label.id}), method='post')
               input(name='_method', type='hidden', value='delete')
               input.btn.btn-link(type='submit', value= t('views.labels.actions.delete'))
