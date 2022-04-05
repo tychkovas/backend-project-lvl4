@@ -49,6 +49,20 @@ export default class Task extends unique(BaseModel) {
         },
       },
 
+      labels: {
+        relation: BaseModel.ManyToManyRelation,
+        modelClass: 'Label',
+
+        join: {
+          from: 'tasks.Id',
+          through: {
+            from: 'tasks_labels.taskId',
+            to: 'tasks_labels.labelId',
+          },
+          to: 'labels.id',
+        },
+      },
+
       creator: {
         relation: BaseModel.BelongsToOneRelation,
         modelClass: 'User',
