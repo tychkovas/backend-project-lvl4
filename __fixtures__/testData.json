@@ -32,6 +32,18 @@
     }
   },
 
+  "labels": {
+    "existing": {
+      "name": "bug"
+    },
+    "updated": {
+      "name": "debug"
+    },
+    "unrelated":   {
+      "name": "completed"
+    }
+  },
+
   "tasks": {
     "new": {
       "data": {
