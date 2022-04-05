@@ -26,7 +26,7 @@ export default (app) => {
 
         if (!task) throw new Error('Task not defined');
 
-        await task.$fetchGraph('[status, creator, executor]');
+        await task.$fetchGraph('[status, creator, executor, labels]');
 
         req.log.trace(`showTask:formTask: ${JSON.stringify(task)}`);
 
@@ -43,13 +43,17 @@ export default (app) => {
       const task = new app.objection.models.task();
       const statuses = await app.objection.models.taskStatus.query();
       const users = await app.objection.models.user.query();
-      reply.render('tasks/new', { task, statuses, users });
+      const labels = await app.objeciton.models.label.query();
+      reply.render('tasks/new', {
+        task, statuses, users, labels,
+      });
       return reply;
     })
 
     .post('/tasks', { name: 'createTask', preValidation: app.authenticate }, async (req, reply) => {
       const statuses = await app.objection.models.taskStatus.query();
       const users = await app.objection.models.user.query();
+      const labels = await app.objeciton.models.label.query();
       try {
         const { data } = req.body;
         req.log.trace(`createTask:req.body: ${JSON.stringify(data)}`);
@@ -71,7 +75,7 @@ export default (app) => {
         req.log.error(`createTask: ${JSON.stringify(error)}`);
         req.flash('error', i18next.t('flash.tasks.create.error'));
         reply.render('tasks/new', {
-          task: req.body.data, statuses, users, errors: error.data,
+          task: req.body.data, statuses, users, labels, errors: error.data,
         });
         return reply;
       }
@@ -124,9 +128,10 @@ export default (app) => {
         req.log.error(`updateTask: ${JSON.stringify(err)}`);
         const statuses = await app.objection.models.taskStatus.query();
         const users = await app.objection.models.user.query();
+        const labels = await app.objeciton.models.label.query();
         req.flash('error', i18next.t('flash.tasks.edit.error'));
         reply.render('tasks/edit', {
-          task: { ...req.body.data, id }, statuses, users, error: err.data,
+          task: { ...req.body.data, id }, statuses, users, labels, error: err.data,
         });
         return reply;
       }
