@@ -11,7 +11,7 @@ exports.up = (knex) => (
     table.increments('id').primary();
 
     table
-      .integer('taskId')
+      .integer('task_id')
       .unsigned()
       .references('id')
       .inTable('tasks')
@@ -19,7 +19,7 @@ exports.up = (knex) => (
       .index()
    
     table
-     .integer('labelId')
+     .integer('label_id')
      .unsigned()
      .references('id')
      .inTable('labels')
