@@ -120,7 +120,7 @@ describe('test labels CRUD', () => {
 
       const responseEditLabel = await app.inject({
         method: 'GET',
-        url: `/labels/${id}/edit`,
+        url: app.reverse('openForEditLabel', { id }),
         cookies: cookie,
       });
 
@@ -131,7 +131,7 @@ describe('test labels CRUD', () => {
       const paramsUpdated = testData.labels.updated;
       const response = await app.inject({
         method: 'PATCH',
-        url: `/labels/${id}`,
+        url: app.reverse('updateLabel', { id }),
         payload: {
           data: paramsUpdated,
         },
@@ -173,7 +173,7 @@ describe('test labels CRUD', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/labels/${id}`,
+        url: app.reverse('deleteLabel', { id }),
         cookies: cookie,
       });
 
@@ -202,7 +202,7 @@ describe('test labels CRUD', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/labels/${id}`,
+        url: app.reverse('deleteLabel', { id }),
         cookies: cookie,
       });
 
