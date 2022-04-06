@@ -92,8 +92,11 @@ export default (app) => {
 
         const statuses = await app.objection.models.taskStatus.query();
         const users = await app.objection.models.user.query();
+        const labels = await app.objection.models.label.query();
 
-        reply.render('tasks/edit', { task, statuses, users });
+        reply.render('tasks/edit', {
+          task, statuses, users, labels,
+        });
         return reply;
       } catch (err) {
         req.log.error(`editTask:${JSON.stringify(err)}`);
