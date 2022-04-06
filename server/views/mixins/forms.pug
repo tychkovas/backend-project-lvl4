@@ -36,12 +36,16 @@ mixin select(entity, propertyName, labelText, options, errors = {})
       name=getInputName(propertyName)
       class=classLine
     )&attributes(attributes)
-      option
-      each item in options
-        if  (item.id === selectedId)
-          option(value = item.id selected="selected")= item.name
-        else
-          option(value = item.id )= item.name
+      if (!_.has( attributes, 'multiple'))
+        option
+        each item in options
+          if (item.id === selectedId)
+            option(value = item.id selected="selected")= item.name
+          else
+            option(value = item.id )= item.name
+       else 
+         each item in options
+            option(value = item.id )= item.name
     if !_.isEmpty(propertyErrors)
       .invalid-feedback= propertyErrors.map(({ message }) => message).join('. ')
 
