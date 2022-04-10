@@ -1,4 +1,5 @@
 import i18next from 'i18next';
+import _ from 'lodash';
 import getApp from '../server/index.js';
 import {
   getTestData,
@@ -103,7 +104,7 @@ describe('test tasks CRUD', () => {
       expect(response.headers.location).toBe(app.reverse('tasks'));
 
       const expected = {
-        ...params,
+        ..._.omit(params, 'labels'),
         statusId: Number(params.statusId),
         executorId: Number(params.executorId),
       };
@@ -152,7 +153,11 @@ describe('test tasks CRUD', () => {
       expect(response.statusCode).toBe(302);
       expect(response.headers.location).toBe(app.reverse('tasks'));
 
-      const expected = paramsUpdated;
+      const expected = {
+        ..._.omit(paramsUpdated, 'labels'),
+        statusId: Number(paramsUpdated.statusId),
+        executorId: Number(paramsUpdated.executorId),
+      };
 
       const task = await models.task.query()
         .findOne({ name: paramsUpdated.name });

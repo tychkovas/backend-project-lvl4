@@ -51,7 +51,8 @@
         "description": "проверка работы создания новых заданий",
         "statusId": "1",
         "creatorId": 2,
-        "executorId": "3"
+        "executorId": "3",
+        "labels": ["1", "2"]
       },
       "raw" : {
         "status": {
@@ -78,6 +79,9 @@
         "statusId": 1,
         "creatorId": 2,
         "executorId": 1
+      },
+      "relate": {
+        "labels": "2"
       }
     },
     "alternative": {
@@ -95,7 +99,8 @@
         "description": "Обновленое описание  задачи 1",
         "statusId": 2,
         "creatorId": 2,
-        "executorId": 1
+        "executorId": 1,
+        "labels": ["1", "2"]
       }
     }
   }
