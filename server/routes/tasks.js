@@ -1,4 +1,5 @@
 import i18next from 'i18next';
+import _ from 'lodash';
 
 export default (app) => {
   app
@@ -51,9 +52,6 @@ export default (app) => {
     })
 
     .post('/tasks', { name: 'createTask', preValidation: app.authenticate }, async (req, reply) => {
-      const statuses = await app.objection.models.taskStatus.query();
-      const users = await app.objection.models.user.query();
-      const labels = await app.objection.models.label.query();
       try {
         const { data } = req.body;
         req.log.trace(`createTask:req.body: ${JSON.stringify(data)}`);
@@ -61,11 +59,23 @@ export default (app) => {
         data.creatorId = req.session.get('userId');
         data.statusId = Number(data.statusId);
         data.executorId = (data.executorId === '') ? null : Number(data.executorId);
+        const task = await app.objection.models.task.fromJson(_.omit(data, 'labels')); // _.omit(data, 'labels');
 
-        req.log.info(`createTask:data: ${JSON.stringify(data)}`);
-        const task = await app.objection.models.task.fromJson(data);
+        const insertedGraphTask = await app.objection.models.task.transaction(async (trx) => {
+          const newTask = await app.objection.models.task.query(trx).insert(task);
 
-        await app.objection.models.task.query().insert(task);
+          const labelIds = (data?.labels) ? [data.labels].flat().map(Number) : [];
+          const reletedLabels = await app.objection.models.label.query(trx).findByIds(labelIds);
+
+          req.log.trace(`createTask:reletedLabels: ${JSON.stringify(reletedLabels)}`);
+
+          await Promise.all(labelIds.map((label) => newTask.$relatedQuery('labels', trx).relate(label)));
+          req.log.trace(`createTask:reletedLabels: ${JSON.stringify(reletedLabels)}`);
+
+          return newTask;
+        });
+
+        req.log.trace(`createTask:insertedTask: ${JSON.stringify(insertedGraphTask)}`);
 
         req.flash('info', i18next.t('flash.tasks.create.success'));
         reply.redirect(app.reverse('tasks'));
@@ -74,6 +84,10 @@ export default (app) => {
         // const { data } = error;
         req.log.error(`createTask: ${JSON.stringify(error)}`);
         req.flash('error', i18next.t('flash.tasks.create.error'));
+
+        const statuses = await app.objection.models.taskStatus.query();
+        const users = await app.objection.models.user.query();
+        const labels = await app.objection.models.label.query();
         reply.render('tasks/new', {
           task: req.body.data, statuses, users, labels, errors: error.data,
         });
@@ -119,10 +133,27 @@ export default (app) => {
         req.log.info(`updateTask:data: ${JSON.stringify(data)}`);
         const task = await app.objection.models.task.fromJson(data);
 
-        const taskUpdated = await app.objection.models.task.query()
-          .findById(id);
+        const updatedGraphTask = await app.objection.models.task.transaction(async (trx) => {
+          const taskUpdated = await app.objection.models.task.query(trx)
+            .findById(id);
 
-        await taskUpdated.$query().update(task);
+          const unrelatedLabels = await taskUpdated.$relatedQuery('labels', trx)
+            .unrelate();
+          req.log.trace(`updateTask: unrelatedLabels: ${unrelatedLabels}`);
+
+          if (data.labels) {
+            const labelIds = [data.labels].flat().map(Number);
+            const reletedLabels = await app.objection.models.label.query(trx).findByIds(labelIds);
+            req.log.trace(`updateTask: reletedLabels:${reletedLabels}`);
+            await taskUpdated.$query(trx).update(task);
+            await Promise.all(labelIds.map((label) => taskUpdated.$relatedQuery('labels', trx).relate(label)));
+            req.log.trace(`updateTask: taskUpdated:${taskUpdated}`);
+          }
+
+          return taskUpdated;
+        });
+
+        req.log.trace(`updateTask:inserted: ${JSON.stringify(updatedGraphTask)}`);
 
         req.flash('info', i18next.t('flash.tasks.edit.success'));
         reply.redirect(app.reverse('tasks'));
