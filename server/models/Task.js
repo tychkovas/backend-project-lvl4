@@ -54,7 +54,7 @@ export default class Task extends unique(BaseModel) {
         modelClass: 'Label',
 
         join: {
-          from: 'tasks.Id',
+          from: 'tasks.id',
           through: {
             from: 'tasks_labels.taskId',
             to: 'tasks_labels.labelId',
