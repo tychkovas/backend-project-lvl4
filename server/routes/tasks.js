@@ -101,6 +101,7 @@ export default (app) => {
         const task = await app.objection.models.task.query().findById(id);
 
         await task.$fetchGraph('[labels]');
+        task.labels = task.labels.map((label) => label.id);
 
         req.log.trace(`editTask:task: ${JSON.stringify(task)}`);
 
