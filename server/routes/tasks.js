@@ -179,10 +179,18 @@ export default (app) => {
         const id = Number(req.params?.id);
         const task = await app.objection.models.task.query().findById(id);
         if (task.creatorId === req.session.get('userId')) {
-          req.log.info(`deleteTask: task = ${task}`);
-          const idDeleted = await task.$query().delete();
-          req.log.info(`deleteTask: id = ${idDeleted}`);
-          req.flash('info', i18next.t('flash.tasks.delete.success'));
+          const returnValue = await app.objection.models.task
+            .transaction(async (trx) => {
+              req.log.trace(`deleteTask: task = ${task}`);
+              const unrelatedLabels = await task.$relatedQuery('labels', trx)
+                .unrelate();
+              req.log.trace(`updateTask: unrelatedLabels: ${unrelatedLabels}`);
+              const idDeleted = await task.$query(trx).delete();
+              req.log.info(`deleteTask: id = ${idDeleted}`);
+              req.flash('info', i18next.t('flash.tasks.delete.success'));
+              return task;
+            });
+          req.log.trace(`deleteTask: delete task succesfull: = ${returnValue}`);
         } else {
           req.log.error(`deleteTask: task created by userId ${task.creatorId} `);
           req.flash('error', i18next.t('flash.tasks.delete.accessError'));
