@@ -100,6 +100,8 @@ export default (app) => {
       try {
         const task = await app.objection.models.task.query().findById(id);
 
+        await task.$fetchGraph('[labels]');
+
         req.log.trace(`editTask:task: ${JSON.stringify(task)}`);
 
         if (!task) throw new Error('Task not defined');

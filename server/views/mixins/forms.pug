@@ -26,7 +26,6 @@ mixin select(entity, propertyName, labelText, options, errors = {})
   - propertyErrors = _.get(errors, propertyName)
   - classLine = 'form-control' + (_.isEmpty(propertyErrors) ? '' : ' is-invalid')
   - inputId = getInputId(propertyName)
-  - selectedId=_.get(entity, propertyName, '')
   .mb-3(class=(errors[propertyName] && 'has-danger'))
     label(
       for= inputId
@@ -37,6 +36,7 @@ mixin select(entity, propertyName, labelText, options, errors = {})
       class=classLine
     )&attributes(attributes)
       if (!_.has( attributes, 'multiple'))
+        - selectedId=_.get(entity, propertyName, '')
         option
         each item in options
           if (item.id === selectedId)
@@ -44,8 +44,10 @@ mixin select(entity, propertyName, labelText, options, errors = {})
           else
             option(value = item.id )= item.name
       else 
+        - selectedIds=_.get(entity, propertyName, []).map((label) => label.id)
         each item in options
-          option(value = item.id )= item.name
+          - isSelect = selectedIds.includes(item.id) ? "selected" : false
+          option(value = item.id selected= isSelect)= item.name
     if !_.isEmpty(propertyErrors)
       .invalid-feedback= propertyErrors.map(({ message }) => message).join('. ')
 
