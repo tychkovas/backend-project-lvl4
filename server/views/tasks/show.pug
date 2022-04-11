@@ -11,8 +11,11 @@ block content
 
     .col-12.col-md-5.border-start.px-3.order-1.order-md-2.mb-3.mb-md-0
       .mb-2
-        span.me-1.badge.bg-info.text-white
+        span.me-1.badge.bg-dark.bg-gradient.text-white
           = task.status.name
+        each label in task.labels
+          span.me-1.badge.bg-secondary.bg-gradient.text-white
+            = label.name
 
       .d-flex.flex-wrap.mb-3
         span.text-muted.me-2
