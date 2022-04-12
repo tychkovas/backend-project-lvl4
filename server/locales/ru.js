@@ -140,6 +140,11 @@ module.exports = {
         description: 'Описание',
         status: 'Статус',
         labels: 'Метки',
+        newLabel: {
+          name: 'Новая метка',
+          placeholder: 'Введите название метки',
+          alert: 'Пожалуйста введите название метки',
+        },
         creator: 'Автор',
         executor: 'Исполнитель',
         createdAt: 'Дата создания',
@@ -147,6 +152,7 @@ module.exports = {
           edit: 'Изменить',
           delete: 'Удалить',
           new: 'Создать задачу',
+          newLabel: 'Добавить',
         },
         new: {
           header: 'Создание задачи',
