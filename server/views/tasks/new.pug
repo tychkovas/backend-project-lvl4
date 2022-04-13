@@ -33,7 +33,7 @@ block content
         return;
       }
       // create a new option
-      const option = new Option(inputData.value, JSON.stringify({ new: inputData.value }));
+      const option = new Option(inputData.value, JSON.stringify({ name: inputData.value }));
       // add it to the list
       selectLabels.add(option, undefined);
 

@@ -145,7 +145,23 @@ export default (app) => {
           req.log.trace(`updateTask: unrelatedLabels: ${unrelatedLabels}`);
 
           if (data.labels) {
-            const labelIds = [data.labels].flat().map(Number);
+            // const labelIds = [data.labels].flat().map(Number);
+            const labelIds = await Promise.all([data.labels].flat().map(async (item) => {
+              if (Number(item)) {
+                return Number(item);
+              }
+
+              const newLabel = JSON.parse(item);
+              req.log.trace(`updateTask: new label = ${item}`);
+              if (newLabel?.name) {
+                await app.objection.models.label.fromJson(newLabel);
+                const label = await app.objection.models.label.query(trx)
+                  .insert(newLabel);
+                return label?.id;
+              }
+              throw new Error(`New task Label invalid format '${item}'`);
+            }));
+            req.log.trace(`updateTask: labelIds: ${labelIds}`);
             const reletedLabels = await app.objection.models.label.query(trx).findByIds(labelIds);
             req.log.trace(`updateTask: reletedLabels:${reletedLabels}`);
             await taskUpdated.$query(trx).update(task);
