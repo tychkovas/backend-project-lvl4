@@ -52,7 +52,7 @@
         "statusId": "1",
         "creatorId": 2,
         "executorId": "3",
-        "labels": ["1", "2"]
+        "labels": ["1", "2", "{\"name\":\"newLabelName\"}"]
       },
       "raw" : {
         "status": {
@@ -100,7 +100,7 @@
         "statusId": 2,
         "creatorId": 2,
         "executorId": 1,
-        "labels": ["1", "2"]
+        "labels": ["1", "2", "{\"name\":\"newLabelName\"}"]
       }
     }
   }

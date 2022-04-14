@@ -113,6 +113,15 @@ describe('test tasks CRUD', () => {
 
       expect(task).toMatchObject(expected);
 
+      await task.$fetchGraph('[labels]');
+
+      const expectedLabels = params.labels;
+      expectedLabels[0] = await models.label.query().findById(Number(params.labels[0]));
+      expectedLabels[1] = await models.label.query().findById(Number(params.labels[1]));
+      expectedLabels[2] = await models.label.query().findOne(JSON.parse(params.labels[2]));
+
+      expect(task.labels).toEqual(expect.arrayContaining(expectedLabels));
+
       // провека наличия флэш-сообщения
       const responseRedirect = await app.inject({
         method: 'GET',
@@ -162,6 +171,15 @@ describe('test tasks CRUD', () => {
       const task = await models.task.query()
         .findOne({ name: paramsUpdated.name });
       expect(task).toMatchObject(expected);
+
+      await task.$fetchGraph('[labels]');
+
+      const expectedLabels = paramsUpdated.labels;
+      expectedLabels[0] = await models.label.query().findById(Number(paramsUpdated.labels[0]));
+      expectedLabels[1] = await models.label.query().findById(Number(paramsUpdated.labels[1]));
+      expectedLabels[2] = await models.label.query().findOne(JSON.parse(paramsUpdated.labels[2]));
+
+      expect(task.labels).toEqual(expect.arrayContaining(expectedLabels));
 
       const nonExistingTask = await models.task.query()
         .findOne({ name: paramsExixttingTask.name });
