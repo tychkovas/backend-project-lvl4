@@ -12,10 +12,16 @@ export default (app) => {
 
         // req.log.info(`tasks: ${JSON.stringify(tasks)}`);
 
+        const statuses = await app.objection.models.taskStatus.query();
+        const users = await app.objection.models.user.query();
+        const labels = await app.objection.models.label.query();
+
         Object.entries(tasks).forEach(([key, value]) => {
           req.log.trace(`tasks: ${key}:${value.name}:${value.creator.name}`);
         });
-        reply.render('tasks/index', { tasks });
+        reply.render('tasks/index', {
+          tasks, statuses, users, labels, selection: {},
+        });
         return reply;
       })
 

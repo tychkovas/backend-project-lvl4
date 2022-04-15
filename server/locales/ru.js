@@ -153,6 +153,7 @@ module.exports = {
           delete: 'Удалить',
           new: 'Создать задачу',
           newLabel: 'Добавить',
+          showFiltered: 'Показать',
         },
         new: {
           header: 'Создание задачи',
