@@ -84,6 +84,17 @@
         "labels": "2"
       }
     },
+    "filter": {
+      "status": "1",
+      "executor": "1",
+      "label": "1",
+      "isCreatorUser": "on"
+    },
+    "firlterEmpty": {
+      "status": "",
+      "executor": "",
+      "label": ""
+    },
     "alternative": {
       "data":  {
         "name": "задача 2",

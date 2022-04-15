@@ -146,6 +146,7 @@ module.exports = {
           alert: 'Пожалуйста введите название метки',
         },
         creator: 'Автор',
+        isCreatorUser: 'Только мои задачи',
         executor: 'Исполнитель',
         createdAt: 'Дата создания',
         actions: {
@@ -153,6 +154,7 @@ module.exports = {
           delete: 'Удалить',
           new: 'Создать задачу',
           newLabel: 'Добавить',
+          showFiltered: 'Показать',
         },
         new: {
           header: 'Создание задачи',

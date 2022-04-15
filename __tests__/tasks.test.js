@@ -260,6 +260,35 @@ describe('test tasks CRUD', () => {
       expect(responseRedirect.body).toContain(getFlashMessage(flash.danger, 'flash.tasks.delete.accessError'));
     });
   });
+  // - /tasks?status=&executor=&label=&isCreatorUser=on
+  describe('filtering', () => {
+    it('by all options for 1 task', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: app.reverse('tasks'),
+        cookies: cookie,
+        query: testData.tasks.filter,
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toContain(testData.tasks.existing.data.name);
+      expect(response.body).not.toContain(testData.tasks.alternative.data.name);
+    });
+
+    it('by empty options, out all tasks', async () => {
+      const paramsFilter = testData.tasks.firlterEmpty;
+      const response = await app.inject({
+        method: 'GET',
+        url: app.reverse('tasks'),
+        cookies: cookie,
+        query: paramsFilter,
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toContain(testData.tasks.existing.data.name);
+      expect(response.body).toContain(testData.tasks.alternative.data.name);
+    });
+  });
 
   afterEach(async () => {
     await knex.migrate.rollback();
