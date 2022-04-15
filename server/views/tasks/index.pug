@@ -7,14 +7,14 @@ block content
   a.nav-link(href=route('newTask'))= t('views.tasks.actions.new')
   br
   //- /tasks?status=&executor=&label=&isCreatorUser=on
-  //- ?data%5Bstatus%5D=1&data%5Bexecutor%5D=5&data%5Blabel%5D=1
+  //- /tasks?status=2&label=4&executor=3
   +formFor()(action=route('tasks') method='get')
     .row
       .col
-        +select(selection, 'status', t('views.tasks.status'), statuses,  errors)
+        +filterSelect(selection, 'status', t('views.tasks.status'), statuses)
       .col
-        +select(selection, 'label', t('views.tasks.labels'), labels, errors)
-      +select(selection, 'executor', t('views.tasks.executor'), users, errors)
+        +filterSelect(selection, 'label', t('views.tasks.labels'), labels)
+      +filterSelect(selection, 'executor', t('views.tasks.executor'), users)
     +submit(selection)(value=t('views.tasks.actions.showFiltered'))
   br
   table.table.table-striped.table-dark
