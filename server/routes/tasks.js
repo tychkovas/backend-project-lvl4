@@ -6,15 +6,15 @@ export default (app) => {
     .get('/tasks',
       { name: 'tasks', preValidation: app.authenticate },
       async (req, reply) => {
-        const tasks = await app.objection.models.task.query()
-          .withGraphFetched('[status, creator, executor]');
+        const [tasks, statuses, users, labels] = await Promise.all([
+          app.objection.models.task.query()
+            .withGraphFetched('[status, creator, executor]'),
+          app.objection.models.taskStatus.query(),
+          app.objection.models.user.query(),
+          app.objection.models.label.query(),
+        ]);
         //  await Promise.all(tasks.map((task) => task.$fetchGraph('[status, creator, executor]')));
-
         // req.log.info(`tasks: ${JSON.stringify(tasks)}`);
-
-        const statuses = await app.objection.models.taskStatus.query();
-        const users = await app.objection.models.user.query();
-        const labels = await app.objection.models.label.query();
 
         Object.entries(tasks).forEach(([key, value]) => {
           req.log.trace(`tasks: ${key}:${value.name}:${value.creator.name}`);
@@ -47,10 +47,12 @@ export default (app) => {
     })
 
     .get('/tasks/new', { name: 'newTask', preValidation: app.authenticate }, async (req, reply) => {
-      const task = new app.objection.models.task();
-      const statuses = await app.objection.models.taskStatus.query();
-      const users = await app.objection.models.user.query();
-      const labels = await app.objection.models.label.query();
+      const [task, statuses, users, labels] = await Promise.all([
+        new app.objection.models.task(),
+        app.objection.models.taskStatus.query(),
+        app.objection.models.user.query(),
+        app.objection.models.label.query(),
+      ]);
       reply.render('tasks/new', {
         task, statuses, users, labels,
       });
@@ -109,9 +111,11 @@ export default (app) => {
         req.log.error(`createTask: ${JSON.stringify(error)}`);
         req.flash('error', i18next.t('flash.tasks.create.error'));
 
-        const statuses = await app.objection.models.taskStatus.query();
-        const users = await app.objection.models.user.query();
-        const labels = await app.objection.models.label.query();
+        const [statuses, users, labels] = await Promise.all([
+          app.objection.models.taskStatus.query(),
+          app.objection.models.user.query(),
+          app.objection.models.label.query(),
+        ]);
         reply.render('tasks/new', {
           task: req.body.data, statuses, users, labels, errors: error.data,
         });
@@ -131,9 +135,11 @@ export default (app) => {
 
         if (!task) throw new Error('Task not defined');
 
-        const statuses = await app.objection.models.taskStatus.query();
-        const users = await app.objection.models.user.query();
-        const labels = await app.objection.models.label.query();
+        const [statuses, users, labels] = await Promise.all([
+          app.objection.models.taskStatus.query(),
+          app.objection.models.user.query(),
+          app.objection.models.label.query(),
+        ]);
 
         reply.render('tasks/edit', {
           task, statuses, users, labels,
@@ -203,9 +209,12 @@ export default (app) => {
         return reply;
       } catch (err) {
         req.log.error(`updateTask: ${JSON.stringify(err)}`);
-        const statuses = await app.objection.models.taskStatus.query();
-        const users = await app.objection.models.user.query();
-        const labels = await app.objection.models.label.query();
+
+        const [statuses, users, labels] = await Promise.all([
+          app.objection.models.taskStatus.query(),
+          app.objection.models.user.query(),
+          app.objection.models.label.query(),
+        ]);
         req.flash('error', i18next.t('flash.tasks.edit.error'));
         reply.render('tasks/edit', {
           task: { ...req.body.data, id }, statuses, users, labels, error: err.data,
