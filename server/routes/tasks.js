@@ -6,21 +6,40 @@ export default (app) => {
     .get('/tasks',
       { name: 'tasks', preValidation: app.authenticate },
       async (req, reply) => {
-        const [tasks, statuses, users, labels] = await Promise.all([
-          app.objection.models.task.query()
-            .withGraphFetched('[status, creator, executor]'),
+        const [statuses, users, labels] = await Promise.all([
           app.objection.models.taskStatus.query(),
           app.objection.models.user.query(),
           app.objection.models.label.query(),
         ]);
+
+        // const tasks = await app.objection.models.task.query()
+        //   // .select('id', 'name', 'statusId', 'creatorId', 'executorId')
+        //   .withGraphFetched('[status, creator, executor]');
+
+        const selection = Object.fromEntries(Object.entries(req.query)
+          .filter(([, value]) => (value !== ''))
+          .map(([key, value]) => ([key, Number(value)])));
+
+        const { executor, label, status } = selection;
+
+        const tasks = await app.objection.models.task.query()
+          .skipUndefined()
+          .where('statusId', status)
+          .where('executorId', executor)
+          .withGraphFetched('[labels]')
+          .withGraphFetched('[status, creator, executor]');
+          // .where('labels.id', label);
+
         //  await Promise.all(tasks.map((task) => task.$fetchGraph('[status, creator, executor]')));
         // req.log.info(`tasks: ${JSON.stringify(tasks)}`);
 
         Object.entries(tasks).forEach(([key, value]) => {
           req.log.trace(`tasks: ${key}:${value.name}:${value.creator.name}`);
         });
+        req.log.trace(`tasks: req.query: ${JSON.stringify(req.query)} -e ${executor}, -l ${label}, -s ${status}`);
+
         reply.render('tasks/index', {
-          tasks, statuses, users, labels, selection: {},
+          tasks, statuses, users, labels, selection,
         });
         return reply;
       })
