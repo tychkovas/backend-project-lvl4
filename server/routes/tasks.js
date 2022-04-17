@@ -26,9 +26,9 @@ export default (app) => {
           .skipUndefined()
           .where('statusId', status)
           .where('executorId', executor)
-          .withGraphFetched('[labels]')
-          .withGraphFetched('[status, creator, executor]');
-          // .where('labels.id', label);
+          .withGraphJoined('[labels]')
+          .where('labelId', label)
+          .withGraphJoined('[status, creator, executor]');
 
         //  await Promise.all(tasks.map((task) => task.$fetchGraph('[status, creator, executor]')));
         // req.log.info(`tasks: ${JSON.stringify(tasks)}`);
