@@ -19,7 +19,12 @@ block content
         +filterSelect(selection, 'executor', t('views.tasks.executor'), users)(class = '')
         .mb-3.input-group
           .input-group-text.ms-4
-            input.form-check#data_isCreatorUser(type="checkbox" name="isCreatorUser")
+            - isChecked = Number.isInteger(selection?.creator)
+            input.form-check#data_isCreatorUser(
+              type="checkbox"
+              name="isCreatorUser"
+              checked= isChecked
+            )
             label.ms-3.form-check-label(for="data_isCreatorUser")= t('views.tasks.isCreatorUser')
 
     +submit(selection)(value=t('views.tasks.actions.showFiltered'))

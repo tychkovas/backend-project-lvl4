@@ -17,15 +17,18 @@ export default (app) => {
         //   .withGraphFetched('[status, creator, executor]');
 
         const selection = Object.fromEntries(Object.entries(req.query)
-          .filter(([, value]) => (value !== ''))
+          .filter(([, value]) => ((value !== '') && !(Number.isNaN(Number(value)))))
           .map(([key, value]) => ([key, Number(value)])));
 
-        const { executor, label, status } = selection;
+        if (req.query?.isCreatorUser === 'on') selection.creator = req.session.get('userId');
+        // eslint-disable-next-line object-curly-newline
+        const { executor, label, status, creator } = selection;
 
         const tasks = await app.objection.models.task.query()
           .skipUndefined()
           .where('statusId', status)
           .where('executorId', executor)
+          .where('creatorId', creator)
           .withGraphJoined('[labels]')
           .where('labelId', label)
           .withGraphJoined('[status, creator, executor]');
@@ -36,7 +39,7 @@ export default (app) => {
         Object.entries(tasks).forEach(([key, value]) => {
           req.log.trace(`tasks: ${key}:${value.name}:${value.creator.name}`);
         });
-        req.log.trace(`tasks: req.query: ${JSON.stringify(req.query)} -e ${executor}, -l ${label}, -s ${status}`);
+        req.log.trace(`tasks: req.query: ${JSON.stringify(req.query)}:-e ${executor}, l ${label}, s ${status}, c ${creator}`);
 
         reply.render('tasks/index', {
           tasks, statuses, users, labels, selection,
