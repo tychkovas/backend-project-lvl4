@@ -72,11 +72,11 @@ mixin buttonTo(action, method)
 
 
 mixin filterSelect(entity, propertyName, labelText, options)
-  - classLine = 'form-control'
+  - classLine = 'form-select'
   - filterId = getFilterId(propertyName)
   - selectedId=_.get(entity, propertyName, '')
-  .mb-3(class='')
-    label(
+  .input-group.mb-3(class='')
+    label.input-group-text(
       for= filterId
     )= labelText
     select(

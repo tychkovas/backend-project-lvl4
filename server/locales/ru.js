@@ -146,6 +146,7 @@ module.exports = {
           alert: 'Пожалуйста введите название метки',
         },
         creator: 'Автор',
+        isCreatorUser: 'Только мои задачи',
         executor: 'Исполнитель',
         createdAt: 'Дата создания',
         actions: {
