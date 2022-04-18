@@ -30,10 +30,11 @@ export default (app) => {
           .where('executorId', executor)
           .where('creatorId', creator)
           .withGraphJoined('[labels]')
-          .where('labelId', label)
-          .withGraphJoined('[status, creator, executor]');
+          .where('labelId', label);
 
-        //  await Promise.all(tasks.map((task) => task.$fetchGraph('[status, creator, executor]')));
+        // await tasks.$query.withGraphJoined('[status, creator, executor]');
+
+        await Promise.all(tasks.map((task) => task.$fetchGraph('[status, creator, executor]')));
         // req.log.info(`tasks: ${JSON.stringify(tasks)}`);
 
         Object.entries(tasks).forEach(([key, value]) => {
