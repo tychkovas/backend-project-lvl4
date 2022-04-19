@@ -17,6 +17,7 @@ import fastifyObjectionjs from 'fastify-objectionjs';
 import qs from 'qs';
 import Pug from 'pug';
 import i18next from 'i18next';
+import Rollbar from 'rollbar';
 import ru from './locales/ru.js';
 import en from './locales/en.js';
 // @ts-ignore
@@ -144,3 +145,13 @@ export default () => {
 
   return app;
 };
+
+// include and initialize the rollbar library with your access token
+const rollbar = new Rollbar({
+  accessToken: process.env.ROLLBAR_ACSESS_TOKEN,
+  captureUncaught: true,
+  captureUnhandledRejections: true,
+});
+
+// record a generic message and send it to Rollbar
+rollbar.log('Rollbar start!');
