@@ -17,6 +17,7 @@ import fastifyObjectionjs from 'fastify-objectionjs';
 import qs from 'qs';
 import Pug from 'pug';
 import i18next from 'i18next';
+import Rollbar from 'rollbar';
 import ru from './locales/ru.js';
 import en from './locales/en.js';
 // @ts-ignore
@@ -29,13 +30,13 @@ import models from './models/index.js';
 import FormStrategy from './lib/passportStrategies/FormStrategy.js';
 
 dotenv.config();
-console.log('-! dotenv', dotenv.config());
 const mode = process.env.NODE_ENV || 'development';
 const logLevel = process.env.FASTIFY_DEBUG || 'info';
 console.debug('-! logLevel =', logLevel);
 const isProduction = mode === 'production';
 const isDevelopment = mode === 'development';
-console.info('-! isDevelopment', isDevelopment);
+console.info('-! mode', mode);
+if (isDevelopment)console.log('-! dotenv', JSON.stringify(dotenv.config()));
 
 const setUpViews = (app) => {
   const { devServer } = webpackConfig;
@@ -90,9 +91,31 @@ const addHooks = (app) => {
   });
 };
 
+// include and initialize the rollbar library with your access token
+const rollbar = new Rollbar({
+  accessToken: process.env.POST_SERVER_ITEM_ACCESS_TOKEN,
+  captureUncaught: true,
+  captureUnhandledRejections: true,
+  enabled: true,
+});
+
+const setErrorRollbar = (app) => {
+  // record a generic message and send it to Rollbar
+  if (!isProduction) console.error('ErrorHandler: Error-tracking start!');
+  if (isProduction) rollbar.log('Error-tracking start!');
+  app.setErrorHandler((error, request, reply) => {
+    // Log error
+    if (!isProduction) console.error(`ErrorHandler:${error}`);
+    if (isProduction) rollbar.error(`Error:${error}`, request);
+    // Send error response
+    reply.status(500).send({ ok: false });
+    // reply.send(error);
+  });
+};
+
 const registerPlugins = (app) => {
-  app.register(fastifySensible);
-  app.register(fastifyErrorPage);
+  app.register(fastifySensible, { errorHandler: !isProduction });
+  if (!isProduction) app.register(fastifyErrorPage);
   app.register(fastifyReverseRoutes);
   app.register(fastifyFormbody, { parser: qs.parse });
   app.register(fastifySecureSession, {
@@ -134,6 +157,7 @@ export default () => {
     },
   });
 
+  setErrorRollbar(app);
   registerPlugins(app);
 
   setupLocalization();
