@@ -91,6 +91,28 @@ const addHooks = (app) => {
   });
 };
 
+// include and initialize the rollbar library with your access token
+const rollbar = new Rollbar({
+  accessToken: process.env.ROLLBAR_ACSESS_TOKEN,
+  captureUncaught: true,
+  captureUnhandledRejections: true,
+  enabled: true,
+});
+
+// record a generic message and send it to Rollbar
+if (isProduction)(rollbar.log('Rollbar start!'));
+
+const setErrorRollbar = (app) => {
+  app.setErrorHandler((error, request, reply) => {
+    // Log error
+    if (!isProduction) console.error(`ErrorHandler:${error}`);
+    if (isProduction) rollbar.error(`Error:${error}`, request);
+    // Send error response
+    reply.status(409).send({ ok: false });
+    return reply;
+  });
+};
+
 const registerPlugins = (app) => {
   app.register(fastifySensible);
   app.register(fastifyErrorPage);
@@ -135,6 +157,7 @@ export default () => {
     },
   });
 
+  setErrorRollbar(app);
   registerPlugins(app);
 
   setupLocalization();
@@ -145,13 +168,3 @@ export default () => {
 
   return app;
 };
-
-// include and initialize the rollbar library with your access token
-const rollbar = new Rollbar({
-  accessToken: process.env.ROLLBAR_ACSESS_TOKEN,
-  captureUncaught: true,
-  captureUnhandledRejections: true,
-});
-
-// record a generic message and send it to Rollbar
-rollbar.log('Rollbar start!');
