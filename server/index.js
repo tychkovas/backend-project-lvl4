@@ -93,7 +93,7 @@ const addHooks = (app) => {
 
 // include and initialize the rollbar library with your access token
 const rollbar = new Rollbar({
-  accessToken: process.env.ROLLBAR_ACSESS_TOKEN,
+  accessToken: process.env.POST_SERVER_ITEM_ACCESS_TOKEN,
   captureUncaught: true,
   captureUnhandledRejections: true,
   enabled: true,
