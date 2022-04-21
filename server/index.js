@@ -99,23 +99,23 @@ const rollbar = new Rollbar({
   enabled: true,
 });
 
-// record a generic message and send it to Rollbar
-if (isProduction)(rollbar.log('Rollbar start!'));
-
 const setErrorRollbar = (app) => {
+  // record a generic message and send it to Rollbar
+  if (!isProduction) console.error('ErrorHandler: Error-tracking start!');
+  if (isProduction) rollbar.log('Error-tracking start!');
   app.setErrorHandler((error, request, reply) => {
     // Log error
     if (!isProduction) console.error(`ErrorHandler:${error}`);
     if (isProduction) rollbar.error(`Error:${error}`, request);
     // Send error response
-    reply.status(409).send({ ok: false });
-    return reply;
+    reply.status(500).send({ ok: false });
+    // reply.send(error);
   });
 };
 
 const registerPlugins = (app) => {
-  app.register(fastifySensible);
-  app.register(fastifyErrorPage);
+  app.register(fastifySensible, { errorHandler: !isProduction });
+  if (!isProduction) app.register(fastifyErrorPage);
   app.register(fastifyReverseRoutes);
   app.register(fastifyFormbody, { parser: qs.parse });
   app.register(fastifySecureSession, {
