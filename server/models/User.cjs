@@ -1,15 +1,12 @@
 // @ts-check
 
-// import { Model } from 'objection';
-// @ts-ignore
-import objectionUnique from 'objection-unique';
-import BaseModel from './BaseModel.js';
-
-import encrypt from '../lib/secure.js';
+const objectionUnique = require('objection-unique');
+const BaseModel = require('./BaseModel.cjs');
+const encrypt = require('../lib/secure.cjs');
 
 const unique = objectionUnique({ fields: ['email'] });
 
-export default class User extends unique(BaseModel) {
+module.exports = class User extends unique(BaseModel) {
   // @ts-ignore
   static get tableName() {
     return 'users';
@@ -26,7 +23,7 @@ export default class User extends unique(BaseModel) {
       required: ['email', 'password', 'firstName', 'lastName'],
       properties: {
         id: { type: 'integer' },
-        email: { type: 'string', format: 'email' },
+        email: { type: 'string', minLength: 1 },
         password: { type: 'string', minLength: 3 },
         firstName: { type: 'string', minLength: 1 },
         lastName: { type: 'string', minLength: 1 },
@@ -39,7 +36,7 @@ export default class User extends unique(BaseModel) {
     return {
       createdTasks: {
         relation: BaseModel.HasManyRelation,
-        modelClass: 'Task',
+        modelClass: 'Task.cjs',
 
         join: {
           from: 'users.id',
@@ -48,7 +45,7 @@ export default class User extends unique(BaseModel) {
       },
       assignedTasks: {
         relation: BaseModel.HasManyRelation,
-        modelClass: 'Task',
+        modelClass: 'Task.cjs',
 
         join: {
           from: 'users.id',
@@ -71,4 +68,4 @@ export default class User extends unique(BaseModel) {
   verifyPassword(password) {
     return encrypt(password) === this.passwordDigest;
   }
-}
+};

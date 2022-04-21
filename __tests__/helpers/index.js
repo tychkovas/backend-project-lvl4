@@ -2,11 +2,11 @@
 
 import fs from 'fs';
 import path from 'path';
-import faker from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import i18next from 'i18next';
 
-const getFixturePath = (filename) => path.join(__dirname, '..', '..', '__fixtures__', filename);
-const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8').trim();
+const getFixturePath = (filename) => path.join('..', '..', '__fixtures__', filename);
+const readFixture = (filename) => fs.readFileSync(new URL(getFixturePath(filename), import.meta.url), 'utf-8').trim();
 const getFixtureData = (filename) => JSON.parse(readFixture(filename));
 
 export const getTestData = () => getFixtureData('testData.json');
@@ -22,9 +22,23 @@ export const prepareData = async (app) => {
   await knex('tasks_labels').insert(getFixtureData('tasks_labels.json'));
 };
 
+export const removeData = async (app) => {
+  const { knex } = app.objection;
+
+  // удаление всех строк БД
+  await knex('users').truncate();
+  await knex('task_statuses').truncate();
+  await knex('tasks').truncate();
+  await knex('labels').truncate();
+  await knex('tasks_labels').truncate();
+  // после каждого теста откатываем миграции
+  // Segmentation fault: 11
+  // await knex.migrate.rollback();
+};
+
 export const getNewFakerUser = () => ({
-  email: faker.internet.email(),
   password: faker.internet.password(),
+  email: faker.internet.email(),
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
 });
@@ -59,4 +73,4 @@ export const typesFashMessage = {
   success: 'success',
 };
 
-export const getFlashMessage = (type = typesFashMessage.info, message) => `<div class="alert alert-${type}">${i18next.t(message)}</div>`;
+export const getFlashMessage = (type = typesFashMessage.info, message = 'message') => `<div class="alert alert-${type}">${i18next.t(message)}</div>`;

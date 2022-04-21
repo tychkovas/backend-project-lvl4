@@ -1,12 +1,13 @@
-// import { Model } from 'objection';
-import objectionUnique from 'objection-unique';
-import BaseModel from './BaseModel.js';
+// @ts-check
+
+const objectionUnique = require('objection-unique');
+const BaseModel = require('./BaseModel.cjs');
 
 const unique = objectionUnique({
   fields: ['name'],
 });
 
-export default class TaskStatus extends unique(BaseModel) {
+module.exports = class TaskStatus extends unique(BaseModel) {
   static get tableName() {
     return 'task_statuses';
   }
@@ -26,7 +27,7 @@ export default class TaskStatus extends unique(BaseModel) {
     return {
       tasks: {
         relation: BaseModel.HasManyRelation,
-        modelClass: 'Task',
+        modelClass: 'Task.cjs',
 
         join: {
           from: 'task_statuses.id',
@@ -35,4 +36,4 @@ export default class TaskStatus extends unique(BaseModel) {
       },
     };
   }
-}
+};

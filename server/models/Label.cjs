@@ -1,11 +1,13 @@
-import objectionUnique from 'objection-unique';
-import BaseModel from './BaseModel.js';
+// @ts-check
+
+const objectionUnique = require('objection-unique');
+const BaseModel = require('./BaseModel.cjs');
 
 const unique = objectionUnique({
   fields: ['name'],
 });
 
-export default class Label extends unique(BaseModel) {
+module.exports = class Label extends unique(BaseModel) {
   static get tableName() {
     return 'labels';
   }
@@ -25,7 +27,7 @@ export default class Label extends unique(BaseModel) {
     return {
       tasks: {
         relation: BaseModel.ManyToManyRelation,
-        modelClass: 'Task',
+        modelClass: 'Task.cjs',
 
         join: {
           from: 'labels.id',
@@ -38,4 +40,4 @@ export default class Label extends unique(BaseModel) {
       },
     };
   }
-}
+};

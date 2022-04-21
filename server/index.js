@@ -1,5 +1,6 @@
 // @ts-check
 
+import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import path from 'path';
 import fastify from 'fastify';
@@ -21,13 +22,15 @@ import Rollbar from 'rollbar';
 import ru from './locales/ru.js';
 import en from './locales/en.js';
 // @ts-ignore
-import webpackConfig from '../webpack.config.babel.js';
+import webpackConfig from '../webpack.config.js';
 
 import addRoutes from './routes/index.js';
 import getHelpers from './helpers/index.js';
-import knexConfig from '../knexfile.js';
+import * as knexConfig from '../knexfile.js';
 import models from './models/index.js';
 import FormStrategy from './lib/passportStrategies/FormStrategy.js';
+
+const __dirname = fileURLToPath(path.dirname(import.meta.url));
 
 dotenv.config();
 const mode = process.env.NODE_ENV || 'development';
@@ -101,11 +104,11 @@ const rollbar = new Rollbar({
 
 const setErrorRollbar = (app) => {
   // record a generic message and send it to Rollbar
-  if (!isProduction) console.error('ErrorHandler: Error-tracking start!');
+  if (!isProduction) console.info('ErrorHandler: Error-tracking start!');
   if (isProduction) rollbar.log('Error-tracking start!');
   app.setErrorHandler((error, request, reply) => {
     // Log error
-    if (!isProduction) console.error(`ErrorHandler:${error}`);
+    if (!isProduction) console.info(`ErrorHandler:${error}`);
     if (isProduction) rollbar.error(`Error:${error}`, request);
     // Send error response
     reply.status(500).send({ ok: false });

@@ -3,7 +3,8 @@ import _ from 'lodash';
 
 export default (app) => {
   app
-    .get('/tasks',
+    .get(
+      '/tasks',
       { name: 'tasks', preValidation: app.authenticate },
       async (req, reply) => {
         const [statuses, users, labels] = await Promise.all([
@@ -46,7 +47,8 @@ export default (app) => {
           tasks, statuses, users, labels, selection,
         });
         return reply;
-      })
+      },
+    )
 
     .get('/tasks/:id', { name: 'showTask', preValidation: app.authenticate }, async (req, reply) => {
       const id = Number(req.params?.id);

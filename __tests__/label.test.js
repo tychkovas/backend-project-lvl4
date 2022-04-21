@@ -3,6 +3,7 @@ import getApp from '../server/index.js';
 import {
   getTestData,
   prepareData,
+  removeData,
   getCookie,
   signIn,
   getIdInstanceFromModel,
@@ -229,7 +230,7 @@ describe('test labels CRUD', () => {
 
   afterEach(async () => {
     // после каждого теста откатываем миграции
-    await knex.migrate.rollback();
+    await removeData(app);
   });
 
   afterAll(() => app.close());

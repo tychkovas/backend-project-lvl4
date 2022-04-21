@@ -1,16 +1,11 @@
-import path from 'path';
+// @ts-check
+
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 const mode = process.env.NODE_ENV || 'development';
 
-module.exports = {
+export default {
   mode,
-  devtool: 'source-map',
-  // entry: path.join(__dirname, 'src', 'index.js'),
-  output: {
-    path: path.join(__dirname, 'dist', 'public'),
-    // publicPath: '/assets/',
-  },
   devServer: {
     host: 'localhost',
     // contentBase: path.join(__dirname, 'dist', 'public'),
@@ -20,11 +15,6 @@ module.exports = {
   },
   module: {
     rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: 'babel-loader',
-      },
       {
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
