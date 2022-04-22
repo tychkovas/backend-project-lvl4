@@ -5,24 +5,28 @@
    "description": "task manager",
    "main": "server/index.js",
    "scripts": {
-      "test": "jest",
+      "test": "jest --verbose --runInBand",
       "prebuild": "rm -rf dist",
       "build-configs": "babel webpack.config.babel.js --out-dir dist",
       "build-db": "cp knexfile.js dist && knex migrate:latest",
       "build-server": "babel server --out-dir dist/server --source-maps inline && cp -r server/views dist/server/views",
       "build-frontend": "webpack --mode production",
-      "build": "npm run build-configs && npm run build-frontend && npm run build-server && npm run build-db",
-      "start": "node dist/server/bin/server.js"
+      "build_old": "npm run build-configs && npm run build-frontend && npm run build-server && npm run build-db",
+      "start": "node bin/server.js",
+      "build": "webpack"
    },
    "engines": {
-      "node": "14.x"
+      "node": "16.x"
    },
    "jest": {
       "modulePathIgnorePatterns": [
          "<rootDir>/__tests__/helpers/"
+      ],
+      "setupFiles": [
+         "dotenv/config"
       ]
    },
-   "author": "Stanislav Dzisiak",
+   "author": "Aleksandr Tychkov",
    "license": "ISC",
    "repository": {
       "type": "git",
