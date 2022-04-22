@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import i18next from 'i18next';
 import getApp from '../server/index.js';
-import encrypt from '../server/lib/secure.js';
+import encrypt from '../server/lib/secure.cjs';
 import {
   getTestData,
   prepareData,

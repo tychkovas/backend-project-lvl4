@@ -5,7 +5,7 @@
 import objectionUnique from 'objection-unique';
 import BaseModel from './BaseModel.cjs';
 
-import encrypt from '../lib/secure.js';
+import encrypt from '../lib/secure.cjs';
 
 const unique = objectionUnique({ fields: ['email'] });
 
