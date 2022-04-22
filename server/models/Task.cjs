@@ -1,6 +1,6 @@
 import objectionUnique from 'objection-unique';
 
-import BaseModel from './BaseModel.js';
+import BaseModel from './BaseModel.cjs';
 
 const unique = objectionUnique({ fields: ['name'] });
 

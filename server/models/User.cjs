@@ -3,7 +3,7 @@
 // import { Model } from 'objection';
 // @ts-ignore
 import objectionUnique from 'objection-unique';
-import BaseModel from './BaseModel.js';
+import BaseModel from './BaseModel.cjs';
 
 import encrypt from '../lib/secure.js';
 
@@ -26,7 +26,7 @@ export default class User extends unique(BaseModel) {
       required: ['email', 'password', 'firstName', 'lastName'],
       properties: {
         id: { type: 'integer' },
-        email: { type: 'string', format: 'email' },
+        email: { type: 'string', minLength: 1 },
         password: { type: 'string', minLength: 3 },
         firstName: { type: 'string', minLength: 1 },
         lastName: { type: 'string', minLength: 1 },

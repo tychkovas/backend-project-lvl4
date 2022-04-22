@@ -1,13 +1,14 @@
+// import { Model } from 'objection';
 import objectionUnique from 'objection-unique';
-import BaseModel from './BaseModel.js';
+import BaseModel from './BaseModel.cjs';
 
 const unique = objectionUnique({
   fields: ['name'],
 });
 
-export default class Label extends unique(BaseModel) {
+export default class TaskStatus extends unique(BaseModel) {
   static get tableName() {
-    return 'labels';
+    return 'task_statuses';
   }
 
   static get jsonSchema() {
@@ -24,16 +25,12 @@ export default class Label extends unique(BaseModel) {
   static get relationMappings() {
     return {
       tasks: {
-        relation: BaseModel.ManyToManyRelation,
+        relation: BaseModel.HasManyRelation,
         modelClass: 'Task',
 
         join: {
-          from: 'labels.id',
-          through: {
-            from: 'tasks_labels.labelId',
-            to: 'tasks_labels.taskId',
-          },
-          to: 'tasks.id',
+          from: 'task_statuses.id',
+          to: 'tasks.statusId',
         },
       },
     };
