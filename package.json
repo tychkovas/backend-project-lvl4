@@ -1,6 +1,7 @@
 {
    "name": "@hexlet/code",
    "version": "0.1.0",
+   "type": "module",
    "description": "task manager",
    "main": "server/index.js",
    "scripts": {
