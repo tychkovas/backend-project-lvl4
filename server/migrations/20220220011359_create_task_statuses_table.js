@@ -1,5 +1,5 @@
 
-exports.up = (knex) => (
+export const up = (knex) => (
   knex.schema.createTable('task_statuses', (table) => {
     table.increments('id').primary();
     table.string('name');
@@ -8,4 +8,4 @@ exports.up = (knex) => (
   })
 );
 
-exports.down = (knex) => knex.schema.dropTable('task_statuses');
+export const down = (knex) => knex.schema.dropTable('task_statuses');
