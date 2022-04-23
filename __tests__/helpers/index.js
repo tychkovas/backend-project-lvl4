@@ -5,8 +5,8 @@ import path from 'path';
 import faker from '@faker-js/faker';
 import i18next from 'i18next';
 
-const getFixturePath = (filename) => path.join(__dirname, '..', '..', '__fixtures__', filename);
-const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8').trim();
+const getFixturePath = (filename) => path.join('..', '..', '__fixtures__', filename);
+const readFixture = (filename) => fs.readFileSync(new URL(getFixturePath(filename), import.meta.url), 'utf-8').trim();
 const getFixtureData = (filename) => JSON.parse(readFixture(filename));
 
 export const getTestData = () => getFixtureData('testData.json');
@@ -59,4 +59,4 @@ export const typesFashMessage = {
   success: 'success',
 };
 
-export const getFlashMessage = (type = typesFashMessage.info, message) => `<div class="alert alert-${type}">${i18next.t(message)}</div>`;
+export const getFlashMessage = (type = typesFashMessage.info, message = 'message') => `<div class="alert alert-${type}">${i18next.t(message)}</div>`;
