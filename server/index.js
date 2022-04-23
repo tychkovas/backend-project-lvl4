@@ -104,11 +104,11 @@ const rollbar = new Rollbar({
 
 const setErrorRollbar = (app) => {
   // record a generic message and send it to Rollbar
-  if (!isProduction) console.error('ErrorHandler: Error-tracking start!');
+  if (!isProduction) console.info('ErrorHandler: Error-tracking start!');
   if (isProduction) rollbar.log('Error-tracking start!');
   app.setErrorHandler((error, request, reply) => {
     // Log error
-    if (!isProduction) console.error(`ErrorHandler:${error}`);
+    if (!isProduction) console.info(`ErrorHandler:${error}`);
     if (isProduction) rollbar.error(`Error:${error}`, request);
     // Send error response
     reply.status(500).send({ ok: false });
