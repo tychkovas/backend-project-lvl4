@@ -1,7 +1,9 @@
-import { Model } from 'objection';
+// @ts-check
 
-export default class BaseModel extends Model {
+const { Model } = require('objection');
+
+module.exports = class BaseModel extends Model {
   static get modelPaths() {
     return [__dirname];
   }
-}
+};

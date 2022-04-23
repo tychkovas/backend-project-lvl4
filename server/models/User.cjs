@@ -1,15 +1,12 @@
 // @ts-check
 
-// import { Model } from 'objection';
-// @ts-ignore
-import objectionUnique from 'objection-unique';
-import BaseModel from './BaseModel.cjs';
-
-import encrypt from '../lib/secure.cjs';
+const objectionUnique = require('objection-unique');
+const BaseModel = require('./BaseModel.cjs');
+const encrypt = require('../lib/secure.cjs');
 
 const unique = objectionUnique({ fields: ['email'] });
 
-export default class User extends unique(BaseModel) {
+module.exports = class User extends unique(BaseModel) {
   // @ts-ignore
   static get tableName() {
     return 'users';
@@ -71,4 +68,4 @@ export default class User extends unique(BaseModel) {
   verifyPassword(password) {
     return encrypt(password) === this.passwordDigest;
   }
-}
+};
