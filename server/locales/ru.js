@@ -184,7 +184,7 @@ export default {
           signUp: 'Регистрация',
         },
         edit: {
-          submit: 'Сохранить',
+          submit: 'Изменить',
           heading: 'Изменение пользователя',
         },
       },
