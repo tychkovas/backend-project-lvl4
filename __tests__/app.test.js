@@ -28,7 +28,7 @@ describe('requests', () => {
     expect(res.statusCode).toBe(404);
   });
 
-  afterAll(() => {
-    app.close();
+  afterAll(async () => {
+    await app.close();
   });
 });

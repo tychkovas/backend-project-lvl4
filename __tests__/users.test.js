@@ -453,7 +453,7 @@ describe('test users CRUD', () => {
     await removeData(app);
   });
 
-  afterAll(() => {
-    app.close();
+  afterAll(async () => {
+    await app.close();
   });
 });
