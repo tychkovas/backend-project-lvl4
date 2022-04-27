@@ -16,7 +16,7 @@ start:
 	heroku local -f Procfile.dev
 
 start-backend:
-	npx nodemon --exec npx babel-node server/bin/server.js
+	npx nodemon --exec server/bin/server.js
 
 start-frontend:
 	npx webpack serve
@@ -28,4 +28,4 @@ test:
 	npm test -s
 
 test-coverage:
-	npx jest "--coverage"
+	npx jest --coverage --runInBand
