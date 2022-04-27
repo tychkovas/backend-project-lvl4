@@ -7,13 +7,10 @@
    "scripts": {
       "test": "jest --verbose --runInBand",
       "prebuild": "rm -rf dist",
-      "build-configs": "babel webpack.config.babel.js --out-dir dist",
-      "build-db": "cp knexfile.js dist && knex migrate:latest",
-      "build-server": "babel server --out-dir dist/server --source-maps inline && cp -r server/views dist/server/views",
+      "build-db": "knex migrate:latest",
       "build-frontend": "NODE_ENV=production webpack --mode production",
-      "build_old": "npm run build-configs && npm run build-frontend && npm run build-server && npm run build-db",
-      "start": "node server/bin/server.js",
-      "build": "webpack"
+      "build": "npm run build-frontend && npm run build-db",
+      "start": "node server/bin/server.js"
    },
    "engines": {
       "node": "16.x"
