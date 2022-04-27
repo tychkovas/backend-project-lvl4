@@ -1,7 +1,7 @@
 // @ts-check
 
 import getApp from '../server/index.js';
-import { getTestData, prepareData } from './helpers/index.js';
+import { getTestData, prepareData, removeData } from './helpers/index.js';
 
 describe('test session', () => {
   let app;
@@ -51,7 +51,7 @@ describe('test session', () => {
   });
 
   afterAll(async () => {
-    await knex.migrate.rollback();
+    await removeData(app);
     app.close();
   });
 });

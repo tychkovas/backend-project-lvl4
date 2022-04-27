@@ -4,6 +4,7 @@ import getApp from '../server/index.js';
 import {
   getTestData,
   prepareData,
+  removeData,
   getCookie,
   signIn,
   getIdInstanceFromModel,
@@ -291,7 +292,7 @@ describe('test tasks CRUD', () => {
   });
 
   afterEach(async () => {
-    await knex.migrate.rollback();
+    await removeData(app);
   });
 
   afterAll(() => app.close());

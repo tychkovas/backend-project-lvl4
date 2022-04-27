@@ -7,6 +7,7 @@ import encrypt from '../server/lib/secure.cjs';
 import {
   getTestData,
   prepareData,
+  removeData,
   getNewFakerUser,
 } from './helpers/index.js';
 
@@ -449,7 +450,7 @@ describe('test users CRUD', () => {
 
   afterEach(async () => {
     // после каждого теста откатываем миграции
-    await knex.migrate.rollback();
+    await removeData(app);
   });
 
   afterAll(() => {

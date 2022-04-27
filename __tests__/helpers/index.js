@@ -22,6 +22,20 @@ export const prepareData = async (app) => {
   await knex('tasks_labels').insert(getFixtureData('tasks_labels.json'));
 };
 
+export const removeData = async (app) => {
+  const { knex } = app.objection;
+
+  // удаление всех строк БД
+  await knex('users').truncate();
+  await knex('task_statuses').truncate();
+  await knex('tasks').truncate();
+  await knex('labels').truncate();
+  await knex('tasks_labels').truncate();
+  // после каждого теста откатываем миграции
+  // Segmentation fault: 11
+  // await knex.migrate.rollback();
+};
+
 export const getNewFakerUser = () => ({
   email: faker.internet.email(),
   password: faker.internet.password(),

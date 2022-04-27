@@ -3,6 +3,7 @@ import getApp from '../server/index.js';
 import {
   getTestData,
   prepareData,
+  removeData,
 } from './helpers/index.js';
 
 describe('test statuses CRUD', () => {
@@ -251,7 +252,7 @@ describe('test statuses CRUD', () => {
 
   afterEach(async () => {
     // после каждого теста откатываем миграции
-    await knex.migrate.rollback();
+    await removeData(app);
   });
 
   afterAll(() => app.close());
