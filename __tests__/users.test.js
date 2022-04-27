@@ -47,13 +47,13 @@ describe('test users CRUD', () => {
     app = await getApp();
     knex = app.objection.knex;
     models = app.objection.models;
+    await knex.migrate.latest();
   });
 
   beforeEach(async () => {
     // тесты не должны зависеть друг от друга
     // перед каждым тестом выполняем миграции
     // и заполняем БД тестовыми данными
-    await knex.migrate.latest();
     await prepareData(app);
   });
 
