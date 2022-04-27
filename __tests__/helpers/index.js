@@ -2,7 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import faker from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import i18next from 'i18next';
 
 const getFixturePath = (filename) => path.join('..', '..', '__fixtures__', filename);
@@ -37,8 +37,8 @@ export const removeData = async (app) => {
 };
 
 export const getNewFakerUser = () => ({
-  email: faker.internet.email(),
   password: faker.internet.password(),
+  email: faker.internet.email(),
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
 });
