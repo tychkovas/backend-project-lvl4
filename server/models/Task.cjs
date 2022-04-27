@@ -42,7 +42,7 @@ module.exports = class Task extends unique(BaseModel) {
     return {
       status: {
         relation: BaseModel.BelongsToOneRelation,
-        modelClass: 'TaskStatus',
+        modelClass: 'TaskStatus.cjs',
 
         join: {
           from: 'tasks.statusId',
@@ -52,7 +52,7 @@ module.exports = class Task extends unique(BaseModel) {
 
       labels: {
         relation: BaseModel.ManyToManyRelation,
-        modelClass: 'Label',
+        modelClass: 'Label.cjs',
 
         join: {
           from: 'tasks.id',
@@ -66,7 +66,7 @@ module.exports = class Task extends unique(BaseModel) {
 
       creator: {
         relation: BaseModel.BelongsToOneRelation,
-        modelClass: 'User',
+        modelClass: 'User.cjs',
 
         join: {
           from: 'tasks.creatorId',
@@ -76,7 +76,7 @@ module.exports = class Task extends unique(BaseModel) {
 
       executor: {
         relation: BaseModel.BelongsToOneRelation,
-        modelClass: 'User',
+        modelClass: 'User.cjs',
 
         join: {
           from: 'tasks.executorId',
