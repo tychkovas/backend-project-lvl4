@@ -52,6 +52,6 @@ describe('test session', () => {
 
   afterAll(async () => {
     await removeData(app);
-    app.close();
+    await app.close();
   });
 });

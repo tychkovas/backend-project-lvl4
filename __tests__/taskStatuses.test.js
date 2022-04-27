@@ -46,12 +46,12 @@ describe('test statuses CRUD', () => {
     app = await getApp();
     knex = app.objection.knex;
     models = app.objection.models;
+    await knex.migrate.latest();
   });
 
   beforeEach(async () => {
     // тесты не зависят друг от труга
     // выполняем миграции
-    await knex.migrate.latest();
     await prepareData(app);
 
     const responseSignIn = await signIn(testData.users.existing);
@@ -255,5 +255,7 @@ describe('test statuses CRUD', () => {
     await removeData(app);
   });
 
-  afterAll(() => app.close());
+  afterAll(async () => {
+    await app.close();
+  });
 });
