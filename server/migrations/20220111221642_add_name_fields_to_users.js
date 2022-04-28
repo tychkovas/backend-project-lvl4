@@ -1,3 +1,4 @@
+// @ts-check
 
 export const up = (knex) => {
     return knex.schema.table('users', function (table) {

@@ -1,4 +1,4 @@
-
+// @ts-check
 
 export const up = (knex) => (
   knex.schema.createTable('tasks', (table) => {
