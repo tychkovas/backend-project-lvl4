@@ -10,16 +10,15 @@ export const up = (knex) => (
       .references('id')
       .inTable('tasks')
       .onDelete('CASCADE')
-      .index()
-   
-    table
-     .integer('label_id')
-     .unsigned()
-     .references('id')
-     .inTable('labels')
-     .onDelete('CASCADE')
-     .index()
+      .index();
 
+    table
+      .integer('label_id')
+      .unsigned()
+      .references('id')
+      .inTable('labels')
+      .onDelete('CASCADE')
+      .index();
   })
 );
 
