@@ -21,8 +21,6 @@ import i18next from 'i18next';
 import Rollbar from 'rollbar';
 import ru from './locales/ru.js';
 import en from './locales/en.js';
-// @ts-ignore
-import webpackConfig from '../webpack.config.js';
 
 import addRoutes from './routes/index.js';
 import getHelpers from './helpers/index.js';
@@ -42,9 +40,6 @@ console.info('-! mode', mode);
 if (isDevelopment)console.log('-! dotenv', JSON.stringify(dotenv.config()));
 
 const setUpViews = (app) => {
-  const { devServer } = webpackConfig;
-  const devHost = `http://${devServer.host}:${devServer.port}`;
-  const domain = isDevelopment ? devHost : '';
   const helpers = getHelpers(app);
   app.register(pointOfView, {
     engine: {
@@ -53,7 +48,7 @@ const setUpViews = (app) => {
     includeViewExtension: true,
     defaultContext: {
       ...helpers,
-      assetPath: (filename) => `${domain}/assets/${filename}`,
+      assetPath: (filename) => `/assets/${filename}`,
     },
     templates: path.join(__dirname, '..', 'server', 'views'),
   });
@@ -64,9 +59,7 @@ const setUpViews = (app) => {
 };
 
 const setUpStaticAssets = (app) => {
-  const pathPublic = isProduction
-    ? path.join(__dirname, '..', 'public')
-    : path.join(__dirname, '..', 'dist', 'public');
+  const pathPublic = path.join(__dirname, '..', 'dist');
   app.register(fastifyStatic, {
     root: pathPublic,
     prefix: '/assets/',

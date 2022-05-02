@@ -7,9 +7,7 @@
    "scripts": {
       "test": "jest --verbose --runInBand",
       "prebuild": "rm -rf dist",
-      "build-db": "knex migrate:latest",
-      "build-frontend": "NODE_ENV=production webpack --mode production",
-      "build": "npm run build-frontend && npm run build-db",
+      "build": "webpack",
       "start": "node server/bin/server.js"
    },
    "engines": {
