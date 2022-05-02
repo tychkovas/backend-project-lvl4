@@ -28,4 +28,4 @@ test:
 	npm test -s
 
 test-coverage:
-	npx jest --coverage --runInBand
+	npx jest --coverage
