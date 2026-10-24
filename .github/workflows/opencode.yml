@@ -31,3 +31,10 @@ jobs:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }} # имя секрета зависит от провайдера в model
         with:
           model: opencode/mimo-v2.6-flash-free
+          prompt: |
+            Review this issue. If there's a clear fix or relevant docs:
+            - Provide documentation links
+            - Add error handling guidance for code examples
+            Otherwise, do not comment.
+
+            Analyze the issue or pull request, but ALL your responses, explanations, and comments MUST be written strictly in the Russian language. Do not output text in English. Все ответы, ревью и комментарии формируй только на русском языке.
