@@ -52,3 +52,19 @@ ESLint airbnb-base + Jest уже в проекте, jactionlint закрывае
 - `$query().update()` валидирует по полной jsonSchema; частичное обновление —
   `$query().patch()`. У User после `fromJson()` нет поля `password` (сеттер записал
   `passwordDigest`) — его обновление идёт через `patch()`.
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues этого репозитория (`tychkovas/backend-project-lvl4`), операции через `gh` CLI.
+See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Пять стандартных лейблов (`needs-triage`, `needs-info`, `ready-for-agent`,
+`ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: корневой `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
