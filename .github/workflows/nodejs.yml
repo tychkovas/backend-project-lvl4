@@ -2,22 +2,18 @@ name: Node CI
 
 on:
   push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-permissions: {}
+permissions:
+  contents: read
 
 env:
   NODE_ENV: test
-  
+
 jobs:
   build:
     timeout-minutes: 15
@@ -28,22 +24,18 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
-      - name: Use Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '22.x'
-          cache: 'npm'
-      - name: npm setup
-        run: make setup
-      - name: Run linter
-        run: make lint
-      - name: Test & publish code coverage
+      # mise ставит зафиксированные версии инструментов из mise.toml/mise.lock
+      - uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
+      - name: Setup (deps, .env, migrations)
+        run: mise run setup
+      - name: All checks (lint + test + workflow lint)
+        run: mise run check
+      - name: Publish code coverage
         # Publish code coverage on Code Climate
         # https://github.com/paambaati/codeclimate-action
         uses: paambaati/codeclimate-action@777dbe80cc2c758b8ef3a24908268918596ebc6f # v2.4.0
-        # Add Code Climate secret key
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         with:
-          coverageCommand: make test-coverage
+          coverageCommand: mise run test-coverage
           debug: true
