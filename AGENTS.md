@@ -8,13 +8,16 @@ Task Manager: Fastify 3 + Objection.js 3 + Knex 3 (ESM). SQLite (dev/test), Post
 mise — единый вход в инструменты, окружение и задачи (`mise.toml`, `mise tasks` — актуальный список):
 
 ```sh
-mise install                 # node 22 + jactionlint, хук сам поставит npm-зависимости
+mise install                 # тулчейн по mise.toml/mise.lock; хук ставит npm-зависимости
 mise run setup               # .env, миграции
-mise run check               # lint + test — обязательная точка после изменений кода
-mise run lint-workflows      # jactionlint по CI workflow'ам
-mise run start               # dev-сервер
+mise run check               # lint + test + workflow lint — одна команда всех проверок
+mise run start               # dev-сервер (по умолчанию порт 5000)
 npx jest __tests__/tasks.test.js -t 'update'   # один тест
 ```
+
+Версии инструментов зафиксированы в `mise.toml` (node, jactionlint, shellcheck — точные
+пинны) и `mise.lock` (чексуммы). CI (`nodejs.yml`, триггер — любой push) вызывает ту же
+`mise run check` через jdx/mise-action.
 
 Инструменты проверок выбраны из каталога dev-guardrails
 (<https://github.com/mokevnin/dev-quality-gates>) — почему эти, а не другие:
@@ -44,6 +47,8 @@ ESLint airbnb-base + Jest уже в проекте, jactionlint закрывае
 - Все запуски — через mise. Смесь системного Node и mise-Node обрывает ABI
   нативных модулей (`better-sqlite3`); при смене версии —
   `mise exec -- npm rebuild better-sqlite3`.
+- На macOS порт 5000 занят AirPlay Receiver (`ControlCenter`) — локальный запуск
+  сервера идёт с `PORT=3000 mise run start`.
 - Тесты/сервер стартуют только с `.env` и `SESSION_KEY` ≥ 32 символов
   (`mise run setup` создаёт из `.env.example`).
 - `better-sqlite3` включает `PRAGMA foreign_keys = ON` — очистку таблиц в тестах
