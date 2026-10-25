@@ -1,0 +1,46 @@
+# mise управляет инструментами, окружением и задачами проекта
+# https://mise.jdx.dev/
+
+[tools]
+node = "22"
+jactionlint = "latest"   # линтер workflow'ов (выбор dev-guardrails)
+
+[env]
+# сессия и прочие переменные лежат в .env (создаётся задачей setup)
+_.file = { path = ".env", optional = true }
+
+[hooks]
+# зависимости ставятся сразу после установки тулчейна
+postinstall = "npm install"
+
+[tasks.setup]
+description = "зависимости + .env + миграции"
+run = ["npm install", "cp -n .env.example .env || true", "npx knex migrate:latest"]
+
+[tasks.migrate]
+description = "применить миграции knex"
+run = "npx knex migrate:latest"
+
+[tasks.lint]
+description = "eslint"
+run = "npx eslint ."
+
+[tasks.test]
+description = "jest (все тесты)"
+run = "npm test"
+
+[tasks.check]
+description = "lint + test — минимальная точка проверки"
+depends = ["lint", "test"]
+
+[tasks.lint-workflows]
+description = "jactionlint по CI workflow'ам"
+run = "jactionlint .github/workflows/nodejs.yml"
+
+[tasks.start]
+description = "dev-сервер (nodemon)"
+run = "npx nodemon --exec server/bin/server.js"
+
+[tasks.build]
+description = "webpack-сборка фронтенда"
+run = "npm run build"
