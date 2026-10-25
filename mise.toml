@@ -2,8 +2,9 @@
 # https://mise.jdx.dev/
 
 [tools]
-node = "22"
-jactionlint = "latest"   # линтер workflow'ов (выбор dev-guardrails)
+node = "22.23.4"
+jactionlint = "2.3.0"
+shellcheck = "0.11.0"   # jactionlint прогоняет её по run: шагам workflow'ов
 
 [env]
 # сессия и прочие переменные лежат в .env (создаётся задачей setup)
@@ -29,9 +30,13 @@ run = "npx eslint ."
 description = "jest (все тесты)"
 run = "npm test"
 
+[tasks.test-coverage]
+description = "jest с coverage (для Code Climate в CI)"
+run = "npx jest --coverage --runInBand"
+
 [tasks.check]
-description = "lint + test — минимальная точка проверки"
-depends = ["lint", "test"]
+description = "lint + test + линт workflow'ов — все проверки одной командой"
+depends = ["lint", "test", "lint-workflows"]
 
 [tasks.lint-workflows]
 description = "jactionlint по CI workflow'ам"
