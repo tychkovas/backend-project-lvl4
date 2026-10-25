@@ -15,7 +15,7 @@ const seeds = {
 
 export const development = {
   debug: true,
-  client: 'sqlite3',
+  client: 'better-sqlite3',
   connection: {
     filename: './database.sqlite',
   },
@@ -25,8 +25,14 @@ export const development = {
 };
 
 export const test = {
-  client: 'sqlite3',
-  connection: ':memory:',
+  client: 'better-sqlite3',
+  connection: {
+    filename: ':memory:',
+  },
+  pool: {
+    min: 1,
+    max: 1,
+  },
   useNullAsDefault: true,
   migrations,
 };

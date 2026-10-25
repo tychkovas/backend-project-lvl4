@@ -14,11 +14,11 @@ import fastifySensible from 'fastify-sensible';
 // import fastifyFlash from 'fastify-flash';
 import { plugin as fastifyReverseRoutes } from 'fastify-reverse-routes';
 import fastifyMethodOverride from 'fastify-method-override';
-import fastifyObjectionjs from 'fastify-objectionjs';
 import qs from 'qs';
 import Pug from 'pug';
 import i18next from 'i18next';
 import Rollbar from 'rollbar';
+import setupObjection from './plugins/objection.js';
 import ru from './locales/ru.js';
 import en from './locales/en.js';
 
@@ -33,11 +33,8 @@ const __dirname = fileURLToPath(path.dirname(import.meta.url));
 dotenv.config();
 const mode = process.env.NODE_ENV || 'development';
 const logLevel = process.env.FASTIFY_DEBUG || 'info';
-console.debug('-! logLevel =', logLevel);
 const isProduction = mode === 'production';
 const isDevelopment = mode === 'development';
-console.info('-! mode', mode);
-if (isDevelopment)console.log('-! dotenv', JSON.stringify(dotenv.config()));
 
 const setUpViews = (app) => {
   const helpers = getHelpers(app);
@@ -139,10 +136,7 @@ const registerPlugins = (app) => {
   )(...args));
 
   app.register(fastifyMethodOverride);
-  app.register(fastifyObjectionjs, {
-    knexConfig: knexConfig[mode],
-    models,
-  });
+  setupObjection(app, knexConfig[mode], models);
 };
 
 export default () => {

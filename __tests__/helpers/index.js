@@ -25,12 +25,12 @@ export const prepareData = async (app) => {
 export const removeData = async (app) => {
   const { knex } = app.objection;
 
-  // удаление всех строк БД
-  await knex('users').truncate();
-  await knex('task_statuses').truncate();
+  // удаление всех строк БД — в порядке зависимостей (сначала дочерние таблицы)
+  await knex('tasks_labels').truncate();
   await knex('tasks').truncate();
   await knex('labels').truncate();
-  await knex('tasks_labels').truncate();
+  await knex('task_statuses').truncate();
+  await knex('users').truncate();
   // после каждого теста откатываем миграции
   // Segmentation fault: 11
   // await knex.migrate.rollback();
