@@ -1,60 +1,54 @@
-# Инструкции агенту (AGENTS.md)
+# AGENTS.md
 
-Task Manager: Fastify 3 + Knex 3 + Objection.js 3 (ESM). Спецификация — `SPEC.md`,
-аудит проблем и план улучшений — `docs/IMPROVEMENTS.md`.
-
-## Окружение
-
-- Node ≥ 20. БД: SQLite (`better-sqlite3`) в dev/test, PostgreSQL в prod.
-- Без `.env` приложение и тесты не стартуют: `cp -n .env.example .env`.
-  Обязательная переменная — `SESSION_KEY` (≥ 32 символа); `DATABASE_URL` и
-  токен Rollbar нужны только в prod.
-- Dev-БД — файл `database.sqlite` в корне (gitignored), создаётся миграциями.
-- `.npmrc` задаёт `--experimental-vm-modules` — нужно Jest с ESM, не удалять.
+Task Manager: Fastify 3 + Objection.js 3 + Knex 3 (ESM). SQLite (dev/test), PostgreSQL (prod).
+Спецификация — `SPEC.md`, разбор проблем — `docs/IMPROVEMENTS.md`.
 
 ## Команды
 
+mise — единый вход в инструменты, окружение и задачи (`mise.toml`, `mise tasks` — актуальный список):
+
 ```sh
-make setup          # install + .env + миграции
-make start-backend  # nodemon (следит за server/, webpack.config.js, locales/)
-make lint           # eslint
-npm test            # все тесты (jest --runInBand)
-npx jest __tests__/tasks.test.js --runInBand   # один файл
-npx jest -t 'update'                            # один тест по имени
-npx knex migrate:latest / migrate:rollback      # миграции
+mise install                 # node 22 + jactionlint, хук сам поставит npm-зависимости
+mise run setup               # .env, миграции
+mise run check               # lint + test — обязательная точка после изменений кода
+mise run lint-workflows      # jactionlint по CI workflow'ам
+mise run start               # dev-сервер
+npx jest __tests__/tasks.test.js -t 'update'   # один тест
 ```
 
-После любых изменений кода: `make lint` и `npm test` — оба зелёные.
+Инструменты проверок выбраны из каталога dev-guardrails
+(<https://github.com/mokevnin/dev-quality-gates>) — почему эти, а не другие:
+ESLint airbnb-base + Jest уже в проекте, jactionlint закрывает workflow'ы.
 
-## Архитектура и границы
+## Устройство (неочевидное из имён файлов)
 
-- Модули сервера — ESM; модели `server/models/*.cjs` — CommonJS, не смешивать.
-- Инициализация knex+objection — `server/plugins/objection.js`
-  (включая `knexSnakeCaseMappers`: колонки snake_case ↔ поля моделей camelCase).
-- Маршруты именованные (`app.reverse('tasks')`), файл на сущность в `server/routes/`,
-  регистрация в `routes/index.js`.
-- Формы генерирует `server/views/mixins/forms.pug` — имена полей вида `data[<prop>]`,
-  поэтому на сервере данные приходят в `req.body.data`.
-- Прогон БД в тестах: `:memory:`, пул из 1 соединения (`knexfile.js`).
+- Сервер — ESM; модели `server/models/*.cjs` — CommonJS, не смешивать.
+- `server/plugins/objection.js` включает `knexSnakeCaseMappers`: колонки БД snake_case,
+  поля моделей camelCase — писать запросы, помня о маппинге.
+- Данные HTML-форм приходят в `req.body.data` (схему полей задаёт
+  `server/views/mixins/forms.pug`); маршруты именованные — `app.reverse('tasks')`.
 
-## Правила кода
+## Правила (не выводимые из кода)
 
-- Данные форм валидировать через `Model.fromJson()`; в БД писать валидированный
-  объект, не сырой `req.body.data`.
-- `task.creatorId` не перезаписывается при редактировании (автор неизменен).
-- Схемы БД менять только новыми миграциями; SQL должен работать и на SQLite,
-  и на PostgreSQL. Применённые миграции не редактировать.
-- `.github/workflows/hexlet-check.yml` — сгенерирован автоматически, не трогать.
-- Стиль airbnb-base + jest; в коде сервера логировать через `req.log`.
+- Коммиты — Conventional Commits (<https://www.conventionalcommits.org/>):
+  `<type>(<scope>): <subject>`, type из `feat|fix|refactor|chore|docs|test|ci`.
+- Данные форм валидировать `Model.fromJson()` и писать в БД валидированный объект.
+- `task.creatorId` неизменен после создания — редактирование автора не переводит.
+- Схему БД менять только новыми миграциями; SQL совместим с SQLite и PostgreSQL.
+  Применённые миграции не редактировать.
+- `.github/workflows/hexlet-check.yml` — автогенерированный, существо правок: не менять.
+- Лог сервера — через `req.log`.
 
 ## Ловушки (проверено на ошибках)
 
-- `better-sqlite3` включает `PRAGMA foreign_keys = ON`: truncate/delete в тестах —
-  от дочерних таблиц к родительским (см. `__tests__/helpers/index.js`).
-- `$query().update()` валидирует по полной jsonSchema; для частичного обновления —
-  `$query().patch()`. После `fromJson()` у User нет поля `password` — сеттер уже
-  записал `passwordDigest`.
-- Логика jest в `__tests__/helpers/` исключена из обнаружения тестов
-  (`modulePathIgnorePatterns`), фикстуры — в `__fixtures__/`.
-- Тесты логина возвращают cookie через хелпер `getCookie(response)` — инъекции
-  без cookie ловят редирект вместо 200.
+- Все запуски — через mise. Смесь системного Node и mise-Node обрывает ABI
+  нативных модулей (`better-sqlite3`); при смене версии —
+  `mise exec -- npm rebuild better-sqlite3`.
+- Тесты/сервер стартуют только с `.env` и `SESSION_KEY` ≥ 32 символов
+  (`mise run setup` создаёт из `.env.example`).
+- `better-sqlite3` включает `PRAGMA foreign_keys = ON` — очистку таблиц в тестах
+  (`__tests__/helpers/index.js`) делать от дочерних к родительским; in-memory БД
+  требует пул из одного соединения (`knexfile.js`).
+- `$query().update()` валидирует по полной jsonSchema; частичное обновление —
+  `$query().patch()`. У User после `fromJson()` нет поля `password` (сеттер записал
+  `passwordDigest`) — его обновление идёт через `patch()`.

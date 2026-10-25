@@ -9,7 +9,7 @@ description: Базовая информация о проекте Task Manager 
 
 ## Стек (кратко)
 
-- Node ≥ 20, ESM, Fastify 3, Pug (SSR), Bootstrap 5, webpack 5.
+- Node 22 (пин в `mise.toml`), ESM, Fastify 3, Pug (SSR), Bootstrap 5, webpack 5.
 - Knex 3 + Objection.js 3; БД: SQLite (`better-sqlite3`) в dev/test, PostgreSQL в prod.
 - Auth: fastify-passport + fastify-secure-session, собственная FormStrategy.
 - Тесты: Jest (интеграционные, `app.inject`), фикстуры в `__fixtures__/`.
@@ -24,16 +24,10 @@ description: Базовая информация о проекте Task Manager 
 
 ## Окружение и команды
 
-```sh
-cp -n .env.example .env   # SESSION_KEY обязателен для старта
-make setup                # install + .env + миграции
-make start-backend        # dev-сервер (nodemon)
-make lint                 # проверка стиля
-npm test                  # тесты (должны быть зелёными)
-```
+Единый вход — mise (см. `AGENTS.md` — команды; `mise.toml` — задачи и инструменты).
+Без `.env` (`SESSION_KEY` ≥ 32 символов) приложение и тесты не стартуют.
 
 ## Проверка после любых изменений
 
-1. `make lint` — без ошибок.
-2. `npm test` — все тесты проходят.
-3. Если менялась схема БД — миграция должна работать и на SQLite, и на PostgreSQL.
+1. `mise run check` — зелёные lint и тесты.
+2. Если менялась схема БД — миграция должна работать и на SQLite, и на PostgreSQL.

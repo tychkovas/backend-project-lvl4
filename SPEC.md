@@ -58,13 +58,12 @@ __fixtures__/         — тестовые данные
 ## Команды
 
 ```sh
-make setup    # install + .env + миграции
-make start    # heroku local (backend + frontend)
-make start-backend / make start-frontend
-make lint     # eslint
-make test     # jest
-npx knex migrate:latest   # миграции
-npx knex migrate:rollback
+mise install           # инструменты (node 22, jactionlint) + npm-зависимости
+mise run setup         # .env + миграции
+mise run check         # lint + test (mise run lint / mise run test по отдельности)
+mise run start         # dev-сервер
+mise run migrate       # npx knex migrate:latest
+# Makefile продублирован: make setup / make start / make lint / make test
 ```
 
 ## Поведение при ошибках
