@@ -55,12 +55,14 @@ export default (app) => {
       }
 
       try {
+        // валидация данных, обновление валидированным объектом
         const status = await app.objection.models.taskStatus.fromJson(req.body.data);
         req.log.info(`/status patch data : ${JSON.stringify(status)}`);
         const statusUpdated = await app.objection.models.taskStatus.query()
           .findById(id);
+        if (!statusUpdated) throw new Error('Status not defined');
 
-        await statusUpdated.$query().update(req.body.data);
+        await statusUpdated.$query().update(status);
         req.flash('info', i18next.t('flash.statuses.edit.success'));
         reply.redirect(app.reverse('statuses'));
 

@@ -83,8 +83,10 @@ export default (app) => {
 
         const userUpdated = await app.objection.models.user.query()
           .findById(id);
+        if (!userUpdated) throw new Error('User not defined');
 
-        await userUpdated.$query().update(req.body.data);
+        // patch-семантика: обязательное поле password уже преобразовано сеттером в passwordDigest
+        await userUpdated.$query().patch(_.omit(user, 'id'));
         req.log.info(`/users update OK : ${JSON.stringify(userUpdated)}`);
         req.log.info('/users patch: success');
 

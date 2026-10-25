@@ -55,12 +55,14 @@ export default (app) => {
       }
 
       try {
+        // валидация данных, обновление валидированным объектом
         const label = await app.objection.models.label.fromJson(req.body.data);
         req.log.info(`/label patch data : ${JSON.stringify(label)}`);
         const labelUpdated = await app.objection.models.label.query()
           .findById(id);
+        if (!labelUpdated) throw new Error('Label not defined');
 
-        await labelUpdated.$query().update(req.body.data);
+        await labelUpdated.$query().update(label);
         req.flash('info', i18next.t('flash.labels.edit.success'));
         reply.redirect(app.reverse('labels'));
 

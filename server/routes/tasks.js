@@ -184,22 +184,20 @@ export default (app) => {
         const { data } = req.body;
         req.log.debug(`updateTask:req.body: ${JSON.stringify(data)}`);
 
-        data.creatorId = req.session.get('userId');
+        const existingTask = await app.objection.models.task.query().findById(id);
+        if (!existingTask) throw new Error('Task not defined');
+
         data.statusId = Number(data.statusId);
         data.executorId = (data.executorId === '') ? null : Number(data.executorId);
 
-        req.log.info(`updateTask:data: ${JSON.stringify(data)}`);
-        const task = await app.objection.models.task.fromJson(data);
+        // creatorId назначается один раз при создании и не перезаписывается при редактировании
+        // валидация данных формы до записи в БД
+        const payload = { ..._.omit(data, 'labels', 'creatorId'), creatorId: existingTask.creatorId };
+        const task = await app.objection.models.task.fromJson(payload);
 
         const updatedGraphTask = await app.objection.models.task.transaction(async (trx) => {
-          const taskUpdated = await app.objection.models.task.query(trx)
-            .findById(id);
+          await existingTask.$relatedQuery('labels', trx).unrelate();
 
-          const unrelatedLabels = await taskUpdated.$relatedQuery('labels', trx)
-            .unrelate();
-          req.log.trace(`updateTask: unrelatedLabels: ${unrelatedLabels}`);
-
-          // const labelIds = [data.labels].flat().map(Number);
           const labelIds = (data?.labels) ? (
             await Promise.all([data.labels].flat().map(async (item) => {
               if (Number(item)) {
@@ -218,13 +216,13 @@ export default (app) => {
             }))
           ) : [];
           req.log.trace(`updateTask: labelIds: ${labelIds}`);
-          const reletedLabels = await app.objection.models.label.query(trx).findByIds(labelIds);
-          req.log.trace(`updateTask: reletedLabels:${reletedLabels}`);
-          await taskUpdated.$query(trx).update(task);
-          await Promise.all(labelIds.map((label) => taskUpdated.$relatedQuery('labels', trx).relate(label)));
-          req.log.trace(`updateTask: taskUpdated:${taskUpdated}`);
 
-          return taskUpdated;
+          // обновляем валидированными данными; creatorId уже равен оригинальному автору
+          await existingTask.$query(trx).update(_.omit(task, 'id'));
+          await Promise.all(labelIds.map((label) => existingTask.$relatedQuery('labels', trx).relate(label)));
+          req.log.trace(`updateTask: taskUpdated:${existingTask}`);
+
+          return existingTask;
         });
 
         req.log.trace(`updateTask:inserted: ${JSON.stringify(updatedGraphTask)}`);
@@ -242,7 +240,7 @@ export default (app) => {
         ]);
         req.flash('error', i18next.t('flash.tasks.edit.error'));
         reply.render('tasks/edit', {
-          task: { ...req.body.data, id }, statuses, users, labels, error: err.data,
+          task: { ...req.body.data, id }, statuses, users, labels, errors: err.data,
         });
         return reply;
       }
