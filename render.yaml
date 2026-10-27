@@ -1,0 +1,17 @@
+# Бесплатный web service. База — внешний Neon, не Postgres Render.
+services:
+  - type: web
+    name: task-manager
+    runtime: node
+    plan: free
+    buildCommand: npm install --include=dev && npm run build && npx knex migrate:latest
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_KEY
+        sync: false
