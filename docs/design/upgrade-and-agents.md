@@ -7,16 +7,16 @@
 Чтобы CI-агент мог ревьюить последующие PRы апгрейда. Эталон переноса — `tychkovas/ai-for-developers-project-387` (агентные элементы и настройки, не реализация).
 
 - `.github/workflows/`:
-  - `opencode.yml` — отклик на `/oc`, `/opencode` в issues и PR-комментариях; модель `opencode/glm-5.3-flash`; ответы агента на русском; шаг нормализации коммитов.
-  - `opencode-review.yml` — авто-ревью PR.
-  - `opencode-triage.yml` — авто-триаж issues (по `docs/agents/triage-labels.md`).
+  - `cursor.yml` — отклик на `/oc`, `/opencode`, `/cursor`, `/cu` в issues и PR-комментариях; Cursor CLI, модель `composer-2.5`.
+  - `cursor-review.yml` — авто-ревью PR.
+  - `cursor-triage.yml` — авто-триаж issues (по `docs/agents/triage-labels.md`).
   - `pr-title.yml` — заголовок PR: английский Conventional Commits без кириллицы.
-- `scripts/`: `normalize-opencode-commit.mjs` (авто-коммиты бота → `chore: apply opencode agent changes (#N)`), `check-commit-subjects.mjs` (+ тест конвенций коммитов) — адаптация из эталона.
+- `scripts/`: `check-commit-subjects.mjs` (+ тест конвенций коммитов) — адаптация из эталона.
 - `AGENTS.md`: новое правило «Используй готовые решения: прежде чем писать свои плагины, хуки или утилиты, сначала ищи готовое поддерживаемое решение в npm и предпочитай его»; правило английских commit subject; секция про агентный CI.
 - `mise.toml`: задача `lint-workflows` расширяется на `.github/workflows/*.yml`.
-- Ручной шаг пользователя: секрет `OPENCODE_API_KEY` в репозитории (`RENDER_API_KEY` — для уже настроенного Render MCP в `opencode.json`).
+- Ручной шаг пользователя: секрет `CURSOR_API_KEY` в репозитории.
 
-Явно НЕ делаем на этом этапе: JSON API `/api/v1` + OpenAPI + MCP-сервер; `skills-lock.json` (скиллы остаются вендоренными); `opencode-scheduled.yml`. Всё это — отложенные issues.
+Явно НЕ делаем на этом этапе: JSON API `/api/v1` + OpenAPI + MCP-сервер; `skills-lock.json` (скиллы остаются вендоренными). Всё это — отложенные issues.
 
 ## Отложенные issues (завести после подтверждения старта)
 
@@ -25,7 +25,7 @@
 3. JSON API `/api/v1` + `@fastify/swagger` — агентная машинная поверхность; фундамент для MCP.
 4. MCP-сервер поверх задач — внешний агентский доступ.
 5. `skills-lock.json` — пинн скиллов с GitHub по хэшам вместо копий.
-6. `opencode-scheduled.yml` — ночной проход агента.
+6. Ночной / scheduled проход агента.
 7. Node 26 → LTS (с 2026-10-28) — вернуться, когда нативные модули (sodium-native, better-sqlite3) дозреют.
 8. rollbar 2 → 4, @faker-js/faker 6 → 10 — по остаточному принципу.
 

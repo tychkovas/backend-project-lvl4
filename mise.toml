@@ -24,11 +24,19 @@ run = "npx knex migrate:latest"
 
 [tasks.lint]
 description = "eslint"
-run = "npx eslint ."
+run = "npx eslint --ext .js,.mjs ."
 
 [tasks.test]
 description = "jest (все тесты)"
 run = "npm test"
+
+[tasks.test-scripts]
+description = "тесты скриптов (node --test)"
+run = "node --test scripts/*.test.mjs"
+
+[tasks.check-commits]
+description = "темы коммитов — английский Conventional Commits"
+run = "node scripts/check-commit-subjects.mjs"
 
 [tasks.test-coverage]
 description = "jest с coverage (для Code Climate в CI)"
@@ -36,11 +44,11 @@ run = "npx jest --coverage --runInBand"
 
 [tasks.check]
 description = "lint + test + линт workflow'ов — все проверки одной командой"
-depends = ["lint", "test", "lint-workflows"]
+depends = ["lint", "test", "test-scripts", "lint-workflows"]
 
 [tasks.lint-workflows]
-description = "jactionlint по CI workflow'ам"
-run = "jactionlint .github/workflows/nodejs.yml"
+description = "jactionlint по CI workflow'ам (hexlet-check.yml — автогенерированный, не проверяется)"
+run = "jactionlint .github/workflows/nodejs.yml .github/workflows/cursor.yml .github/workflows/cursor-review.yml .github/workflows/cursor-triage.yml .github/workflows/pr-title.yml"
 
 [tasks.start]
 description = "dev-сервер (nodemon)"

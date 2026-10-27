@@ -86,6 +86,3 @@ Single-context: корневой `GLOSSARY.md` + `docs/adr/`. See `docs/agents/d
   `cursor.yml`: агент может коммитить, пушить и открывать PR.
 - Ревью PR — `cursor-review.yml` (только чтение + комментарий), триаж новых
   issues — `cursor-triage.yml` (фильтр по возрасту аккаунта ≥ 30 дней).
-- OpenCode-варианты (`opencode.yml`, `opencode-review.yml`, `opencode-triage.yml`)
-  сохранены, но отключены (`if: false`). Для них нужен `OPENCODE_API_KEY`.
-- `RENDER_API_KEY` — для Render MCP из `opencode.json` (если снова включат OpenCode).
