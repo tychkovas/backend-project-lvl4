@@ -7,9 +7,9 @@ CRUD по сущностям и фильтрацией.
 
 | Слой      | Технологии |
 |-----------|------------|
-| Сервер    | Node.js ≥ 20, Fastify 3, ESM |
+| Сервер    | Node.js ≥ 24, Fastify 5, ESM |
 | БД / ORM  | Knex 3 + Objection.js 3; SQLite (dev/test, better-sqlite3), PostgreSQL (prod) |
-| Auth      | fastify-passport + fastify-secure-session (собственная FormStrategy) |
+| Auth      | @fastify/passport 4.x + @fastify/secure-session (собственная FormStrategy) |
 | UI        | Pug (SSR), Bootstrap 5, webpack 5 |
 | Качество  | Jest, ESLint 9 (airbnb-extended, flat config), GitHub Actions, Code Climate, Rollbar |
 

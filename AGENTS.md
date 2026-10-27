@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Task Manager: Fastify 3 + Objection.js 3 + Knex 3 (ESM). SQLite (dev/test), PostgreSQL (prod).
+Task Manager: Fastify 5 + Objection.js 3 + Knex 3 (ESM). SQLite (dev/test), PostgreSQL (prod).
 Спецификация — `SPEC.md`, разбор проблем — `docs/IMPROVEMENTS.md`.
 
 ## Команды

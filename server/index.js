@@ -4,21 +4,19 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import path from 'path';
 import fastify from 'fastify';
-import fastifyStatic from 'fastify-static';
-import fastifyErrorPage from 'fastify-error-page';
-import pointOfView from 'point-of-view';
-import fastifyFormbody from 'fastify-formbody';
-import fastifySecureSession from 'fastify-secure-session';
-import fastifyPassport from 'fastify-passport';
-import fastifySensible from 'fastify-sensible';
-// import fastifyFlash from 'fastify-flash';
-import { plugin as fastifyReverseRoutes } from 'fastify-reverse-routes';
-import fastifyMethodOverride from 'fastify-method-override';
+import fastifyStatic from '@fastify/static';
+import fastifyView from '@fastify/view';
+import fastifyFormbody from '@fastify/formbody';
+import fastifySecureSession from '@fastify/secure-session';
+import fastifyPassport from '@fastify/passport';
+import fastifySensible from '@fastify/sensible';
 import qs from 'qs';
 import Pug from 'pug';
 import i18next from 'i18next';
 import Rollbar from 'rollbar';
 import setupObjection from './plugins/objection.js';
+import reverseRoutes from './plugins/reverse-routes.js';
+import methodOverride from './plugins/method-override.js';
 import ru from './locales/ru.js';
 import en from './locales/en.js';
 
@@ -38,7 +36,7 @@ const isDevelopment = mode === 'development';
 
 const setUpViews = (app) => {
   const helpers = getHelpers(app);
-  app.register(pointOfView, {
+  app.register(fastifyView, {
     engine: {
       pug: Pug,
     },
@@ -92,24 +90,35 @@ const rollbar = new Rollbar({
   enabled: true,
 });
 
-const setErrorRollbar = (app) => {
-  // record a generic message and send it to Rollbar
+const setErrorHandler = (app) => {
   if (!isProduction) console.info('ErrorHandler: Error-tracking start!');
   if (isProduction) rollbar.log('Error-tracking start!');
-  app.setErrorHandler((error, request, reply) => {
-    // Log error
+  app.setErrorHandler(async (error, request, reply) => {
     if (!isProduction) console.info(`ErrorHandler:${error}`);
     if (isProduction) rollbar.error(`Error:${error}`, request);
-    // Send error response
-    reply.status(500).send({ ok: false });
-    // reply.send(error);
+
+    const statusCode = error.statusCode || 500;
+    reply.status(statusCode);
+
+    if (!isProduction && reply.getHeader('content-type') !== 'application/json') {
+      try {
+        return await reply.view('error', {
+          statusCode,
+          message: error.message,
+          stack: error.stack,
+        });
+      } catch {
+        // шаблон ещё не готов на раннем старте — падаем в JSON ниже
+      }
+    }
+
+    return reply.send({ ok: false, message: error.message });
   });
 };
 
 const registerPlugins = (app) => {
-  app.register(fastifySensible, { errorHandler: !isProduction });
-  if (!isProduction) app.register(fastifyErrorPage);
-  app.register(fastifyReverseRoutes);
+  app.register(fastifySensible);
+  app.register(reverseRoutes);
   app.register(fastifyFormbody, { parser: qs.parse });
   app.register(fastifySecureSession, {
     secret: process.env.SESSION_KEY,
@@ -117,6 +126,7 @@ const registerPlugins = (app) => {
       path: '/',
     },
   });
+  // @fastify/flash подключает @fastify/passport.initialize()
 
   fastifyPassport.registerUserDeserializer(
     (user) => app.objection.models.user.query().findById(user.id),
@@ -135,26 +145,32 @@ const registerPlugins = (app) => {
   // @ts-ignore
   )(...args));
 
-  app.register(fastifyMethodOverride);
+  app.register(methodOverride);
   setupObjection(app, knexConfig[mode], models);
 };
 
 export default () => {
   const app = fastify({
     logger: {
-      prettyPrint: isDevelopment,
       level: logLevel,
+      ...(isDevelopment
+        ? { transport: { target: 'pino-pretty' } }
+        : {}),
     },
   });
 
-  setErrorRollbar(app);
+  setErrorHandler(app);
   registerPlugins(app);
 
   setupLocalization();
   setUpViews(app);
   setUpStaticAssets(app);
-  addRoutes(app);
-  addHooks(app);
+
+  // Маршруты после плагинов: onRoute у reverse/method-override успевает подписаться.
+  app.after(() => {
+    addRoutes(app);
+    addHooks(app);
+  });
 
   return app;
 };
