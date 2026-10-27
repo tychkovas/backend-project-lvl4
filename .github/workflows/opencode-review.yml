@@ -1,0 +1,51 @@
+name: opencode-review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  review:
+    # DISABLED: заменён на cursor-review.yml (Cursor CLI). Чтобы снова включить —
+    # убери `false &&` ниже и отключи cursor-review.yml.
+    # Ограничение на этом аккаунте: в режиме use_github_token: true токен раннера
+    # отдаёт 403 "Resource not accessible by integration" на создание комментариев
+    # к PR. Поэтому ревью использует OIDC: OpenCode обменивает OIDC-токен на токен
+    # GitHub-приложения opencode-agent и комментирует им (тот же механизм, что у
+    # /opencode и /oc в opencode.yml).
+    # Также opencode в assertPermissions() проверяет context.actor и для ботов
+    # получает permission: none (upstream: anomalyco/opencode#17224, #23915),
+    # поэтому PR, открытые ботом, пропускаются — для них ревью запускают
+    # комментарием /opencode или /oc.
+    # Событие pull_request, не комментарий: смотрим sender/actor, а не comment.user.
+    if: >-
+      false &&
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, 'opencode')
+    runs-on: ubuntu-latest
+    # Ревью только читает код и оставляет комментарии (токен приложения выдаётся
+    # через OIDC), ничего не коммитит и не пушит.
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Run opencode
+        uses: anomalyco/opencode/github@latest
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }} # имя секрета зависит от провайдера в model
+        with:
+          model: opencode/glm-5.3-flash
+          prompt: |
+            Сделай ревью этого pull request и оставь замечания комментарием к PR.
+            Ничего не коммить и не пушь — только чтение и комментарии.
+            Критерии ревью:
+            - Правила AGENTS.md: данные форм через Model.fromJson() с записью валидированного объекта, частичное обновление через patch(), creatorId задачи неизменен, схема БД меняется только новыми миграциями (SQL совместим с SQLite и PostgreSQL)
+            - Готовые решения прежде своих: нет самописных плагинов/хуков там, где есть поддерживаемый аналог в npm
+            - Проверки через mise (mise run check), а не прямой вызов npm-скриптов; ESM-сервер и .cjs-модели не смешаны
+            - Потенциальные баги, граничные случаи, нарушения типов
+            Все ответы, объяснения и ревью формируй только на русском языке.

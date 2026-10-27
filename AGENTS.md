@@ -10,7 +10,7 @@ mise — единый вход в инструменты, окружение и 
 ```sh
 mise install                 # тулчейн по mise.toml/mise.lock; хук ставит npm-зависимости
 mise run setup               # .env, миграции
-mise run check               # lint + test + workflow lint — одна команда всех проверок
+mise run check               # lint + jest + тесты скриптов + workflow lint — одна команда всех проверок
 mise run start               # dev-сервер (по умолчанию порт 5000)
 npx jest __tests__/tasks.test.js -t 'update'   # один тест
 ```
@@ -33,8 +33,12 @@ ESLint airbnb-base + Jest уже в проекте, jactionlint закрывае
 
 ## Правила (не выводимые из кода)
 
-- Коммиты — Conventional Commits (<https://www.conventionalcommits.org/>):
-  `<type>(<scope>): <subject>`, type из `feat|fix|refactor|chore|docs|test|ci`.
+- Коммиты и заголовки PR — английский Conventional Commits
+  (<https://www.conventionalcommits.org/>): `<type>(<scope>): <subject>`,
+  типы и проверка — `scripts/conventional-commits.mjs` (`mise run check-commits`).
+  Тексты UI, README и ответы агентов — на русском.
+- Прежде чем писать свои плагины, хуки или утилиты, сначала ищи готовое
+  поддерживаемое решение в npm и предпочитай его; своё — когда живого ничего нет.
 - Данные форм валидировать `Model.fromJson()` и писать в БД валидированный объект.
 - `task.creatorId` неизменен после создания — редактирование автора не переводит.
 - Схему БД менять только новыми миграциями; SQL совместим с SQLite и PostgreSQL.
@@ -73,3 +77,15 @@ See `docs/agents/issue-tracker.md`.
 ### Domain docs
 
 Single-context: корневой `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
+
+### Агентный CI
+
+- Активны Cursor CLI workflow'ы (`cursor.yml`, `cursor-review.yml`,
+  `cursor-triage.yml`), модель `composer-2.5`, секрет `CURSOR_API_KEY`.
+- `/oc`, `/opencode`, `/cursor` или `/cu` в комментарии к issue/PR запускает
+  `cursor.yml`: агент может коммитить, пушить и открывать PR.
+- Ревью PR — `cursor-review.yml` (только чтение + комментарий), триаж новых
+  issues — `cursor-triage.yml` (фильтр по возрасту аккаунта ≥ 30 дней).
+- OpenCode-варианты (`opencode.yml`, `opencode-review.yml`, `opencode-triage.yml`)
+  сохранены, но отключены (`if: false`). Для них нужен `OPENCODE_API_KEY`.
+- `RENDER_API_KEY` — для Render MCP из `opencode.json` (если снова включат OpenCode).
