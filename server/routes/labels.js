@@ -41,7 +41,7 @@ export default (app) => {
 
         reply.render('labels/edit', { label });
         return reply;
-      } catch ({ data }) {
+      } catch {
         reply.redirect(app.reverse('labels'));
         return reply;
       }

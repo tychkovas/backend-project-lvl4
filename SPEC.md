@@ -11,7 +11,7 @@ CRUD по сущностям и фильтрацией.
 | БД / ORM  | Knex 3 + Objection.js 3; SQLite (dev/test, better-sqlite3), PostgreSQL (prod) |
 | Auth      | fastify-passport + fastify-secure-session (собственная FormStrategy) |
 | UI        | Pug (SSR), Bootstrap 5, webpack 5 |
-| Качество  | Jest, ESLint (airbnb-base), GitHub Actions, Code Climate, Rollbar |
+| Качество  | Jest, ESLint 9 (airbnb-extended, flat config), GitHub Actions, Code Climate, Rollbar |
 
 ## Структура
 

@@ -24,7 +24,7 @@ run = "npx knex migrate:latest"
 
 [tasks.lint]
 description = "eslint"
-run = "npx eslint --ext .js,.mjs ."
+run = "npx eslint ."
 
 [tasks.test]
 description = "jest (все тесты)"

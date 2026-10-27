@@ -21,7 +21,7 @@ npx jest __tests__/tasks.test.js -t 'update'   # один тест
 
 Инструменты проверок выбраны из каталога dev-guardrails
 (<https://github.com/mokevnin/dev-quality-gates>) — почему эти, а не другие:
-ESLint airbnb-base + Jest уже в проекте, jactionlint закрывает workflow'ы.
+ESLint 9 (airbnb-extended, flat config) + Jest уже в проекте, jactionlint закрывает workflow'ы.
 
 ## Устройство (неочевидное из имён файлов)
 

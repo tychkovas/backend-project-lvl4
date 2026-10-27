@@ -90,7 +90,6 @@ describe('test tasks CRUD', () => {
   });
 
   describe('create', () => {
-    // eslint-disable-next-line jest/no-disabled-tests
     it('should by successful', async () => {
       const params = testData.tasks.new.data;
       const response = await app.inject({

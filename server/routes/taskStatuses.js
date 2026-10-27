@@ -41,7 +41,7 @@ export default (app) => {
 
         reply.render('statuses/edit', { status });
         return reply;
-      } catch ({ data }) {
+      } catch {
         reply.redirect(app.reverse('statuses'));
         return reply;
       }

@@ -191,7 +191,6 @@ describe('test users CRUD', () => {
       expect(responseRedirect.body).toContain(i18next.t('flash.users.edit.success'));
     });
 
-    // eslint-disable-next-line jest/no-disabled-tests
     it('U get fail', async () => {
       const responseOpen = await app.inject({
         method: 'GET',
