@@ -58,7 +58,7 @@ __fixtures__/         — тестовые данные
 ## Команды
 
 ```sh
-mise install           # инструменты (node 22, jactionlint) + npm-зависимости
+mise install           # инструменты (node 24, jactionlint) + npm-зависимости
 mise run setup         # .env + миграции
 mise run check         # lint + test (mise run lint / mise run test по отдельности)
 mise run start         # dev-сервер

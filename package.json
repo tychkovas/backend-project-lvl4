@@ -11,7 +11,7 @@
       "start": "node server/bin/server.js"
    },
    "engines": {
-      "node": ">=20"
+      "node": ">=24"
    },
    "jest": {
       "modulePathIgnorePatterns": [
