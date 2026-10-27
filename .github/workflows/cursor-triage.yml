@@ -53,11 +53,11 @@ jobs:
             echo "Описание:"
             echo "${ISSUE_BODY}"
             echo ""
-            echo "Если есть ясный фикс или релевантная документация в репозитории:"
-            echo "- дай ссылки на docs"
-            echo "- кратко подскажи обработку ошибок для примеров кода"
-            echo "Иначе ничего не комментируй и выведи ровно: NO_COMMENT"
-            echo "Все ответы только на русском. Ничего не коммить и не пушь."
+            echo "Выведи в stdout ровно одну строку и ничего больше."
+            echo "Допустимые строки: NO_COMMENT, needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix."
+            echo "Смысл меток — docs/agents/triage-labels.md."
+            echo "NO_COMMENT — если метку ставить не нужно."
+            echo "Никакого другого текста. Ничего не коммить и не пушь."
           } > /tmp/cursor-prompt.txt
 
           agent -p "$(cat /tmp/cursor-prompt.txt)" \
@@ -67,14 +67,10 @@ jobs:
             --output-format text \
             | tee /tmp/cursor-triage.md
 
-          if grep -qx 'NO_COMMENT' /tmp/cursor-triage.md || grep -q '^NO_COMMENT$' /tmp/cursor-triage.md; then
-            echo "Agent chose not to comment"
+          LABEL="$(node scripts/triage-label.mjs /tmp/cursor-triage.md)"
+          if [ -z "$LABEL" ]; then
+            echo "Agent chose not to label"
             exit 0
           fi
 
-          {
-            echo "### Триаж Cursor Agent"
-            echo ""
-            cat /tmp/cursor-triage.md
-          } > /tmp/cursor-triage-comment.md
-          gh issue comment "$ISSUE_NUMBER" --body-file /tmp/cursor-triage-comment.md
+          gh issue edit "$ISSUE_NUMBER" --add-label "$LABEL"

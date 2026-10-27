@@ -9,7 +9,7 @@ mise — единый вход в инструменты, окружение и 
 
 ```sh
 mise install                 # тулчейн по mise.toml/mise.lock; хук ставит npm-зависимости
-mise run setup               # .env, миграции
+mise run setup               # .env, миграции, скиллы из skills-lock.json
 mise run check               # lint + jest + тесты скриптов + workflow lint — одна команда всех проверок
 mise run start               # dev-сервер (по умолчанию порт 5000)
 npx jest __tests__/tasks.test.js -t 'update'   # один тест
@@ -85,4 +85,7 @@ Single-context: корневой `GLOSSARY.md` + `docs/adr/`. See `docs/agents/d
 - `/oc`, `/opencode`, `/cursor` или `/cu` в комментарии к issue/PR запускает
   `cursor.yml`: агент может коммитить, пушить и открывать PR.
 - Ревью PR — `cursor-review.yml` (только чтение + комментарий), триаж новых
-  issues — `cursor-triage.yml` (фильтр по возрасту аккаунта ≥ 30 дней).
+  issues — `cursor-triage.yml` (фильтр по возрасту аккаунта ≥ 30 дней; одна
+  триажная метка из `docs/agents/triage-labels.md`).
+- Свежий клон получает скиллы через `mise run setup`: в git лежит `skills-lock.json`,
+  каталог `.agents/skills/` не коммитится.

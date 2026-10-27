@@ -15,8 +15,8 @@ _.file = { path = ".env", optional = true }
 postinstall = "npm install"
 
 [tasks.setup]
-description = "зависимости + .env + миграции"
-run = ["npm install", "cp -n .env.example .env || true", "npx knex migrate:latest"]
+description = "зависимости + .env + миграции + скиллы из skills-lock.json"
+run = ["npm install", "cp -n .env.example .env || true", "npx knex migrate:latest", "npx --yes skills experimental_install"]
 
 [tasks.migrate]
 description = "применить миграции knex"
