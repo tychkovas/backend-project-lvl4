@@ -4,20 +4,26 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   review:
     # PR, открытые ботом, пропускаем — для них ревью запускают комментарием /oc или /cursor.
     if: >-
       github.event.sender.type != 'Bot' &&
       !contains(github.actor, '[bot]')
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
@@ -27,6 +33,7 @@ jobs:
         run: mise run setup
 
       - name: Install Cursor CLI
+        shell: bash
         run: |
           curl -fsSL https://cursor.com/install | bash
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
@@ -40,6 +47,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           BASE_REF: ${{ github.event.pull_request.base.ref }}
+        shell: bash
         run: |
           {
             echo "Сделай ревью pull request #${PR_NUMBER} («${PR_TITLE}») относительно ветки ${BASE_REF}."

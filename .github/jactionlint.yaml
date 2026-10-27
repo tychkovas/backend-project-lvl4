@@ -1,0 +1,7 @@
+# Политика линта workflow: как у nodejs.yml/pr-title.yml.
+# Официальный установщик Cursor CLI — единственный поддерживаемый способ
+# поставить `agent` в CI; checksum в mise.lock для него нет.
+rules:
+  unverified-download:
+    allow:
+      - "https://cursor.com/install"
