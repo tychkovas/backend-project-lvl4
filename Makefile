@@ -13,7 +13,7 @@ prepare:
 	cp -n .env.example .env || true
 
 start:
-	heroku local -f Procfile.dev
+	npx nodemon --exec server/bin/server.js
 
 start-backend:
 	npx nodemon --exec server/bin/server.js

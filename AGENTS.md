@@ -11,7 +11,7 @@ mise — единый вход в инструменты, окружение и 
 mise install                 # тулчейн по mise.toml/mise.lock; хук ставит npm-зависимости
 mise run setup               # .env, миграции, скиллы из skills-lock.json
 mise run check               # lint + jest + тесты скриптов + workflow lint — одна команда всех проверок
-mise run start               # dev-сервер (по умолчанию порт 5000)
+mise run start               # dev-сервер (по умолчанию порт 41783)
 npx jest __tests__/tasks.test.js -t 'update'   # один тест
 ```
 
@@ -51,8 +51,8 @@ ESLint 9 (airbnb-extended, flat config) + Jest уже в проекте, jaction
 - Все запуски — через mise. Смесь системного Node и mise-Node обрывает ABI
   нативных модулей (`better-sqlite3`); при смене версии —
   `mise exec -- npm rebuild better-sqlite3`.
-- На macOS порт 5000 занят AirPlay Receiver (`ControlCenter`) — локальный запуск
-  сервера идёт с `PORT=3000 mise run start`.
+- Порт по умолчанию — 41783. На macOS 5000 занят AirPlay Receiver, 8080 на VPS
+  занят панелью BeAdmin.
 - Тесты/сервер стартуют только с `.env` и `SESSION_KEY` ≥ 32 символов
   (`mise run setup` создаёт из `.env.example`).
 - `better-sqlite3` включает `PRAGMA foreign_keys = ON` — очистку таблиц в тестах

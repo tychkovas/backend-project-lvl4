@@ -8,17 +8,25 @@
 
 ## Task Manager "JUST DO IT"
 
-#### follow the [link](https://intense-ocean-99137.herokuapp.com/) to visit the task manager
+Веб-приложение для задач: страницы, вход и формы. Локально и на бесплатном хостинге это один и тот же сервер.
 
-### Setup
+### Локальный запуск
 
-```sh
-$ make setup
-```
-
-### Run
+Сервер слушает порт 41783, его не занимают AirPlay и панель BeAdmin. `make start` больше не используется: эта цель звала Heroku CLI.
 
 ```sh
-$ make start
-# Open localhost:5000
+mise run setup
+npm run build
+mise run start
 ```
+
+Открыть http://127.0.0.1:41783
+
+### Публикация
+
+Сервер — бесплатный web service на Render: деплой из GitHub, Node 24, без карты. Без запросов сервис засыпает через 15 минут и просыпается примерно за минуту. База — бесплатный PostgreSQL на Neon. Файл SQLite на такой машине не переживает перезапуск, а бесплатный Postgres на Render удаляется через 30 дней.
+
+1. На [neon.tech](https://neon.tech) создать проект и скопировать connection string.
+2. На [render.com](https://render.com) подключить этот GitHub-репозиторий. Сборку и старт задаёт `render.yaml`.
+3. В окружении сервиса задать `DATABASE_URL` (строка из Neon) и `SESSION_KEY` (не короче 32 символов).
+4. Дождаться деплоя. Публичный адрес будет на `onrender.com`.
