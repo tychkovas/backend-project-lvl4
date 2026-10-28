@@ -34,10 +34,8 @@ block content
           = t('views.tasks.createdAt')+':'
         span 
           = formatDate(task.createdAt)
-      .d-flex
-        span.text-muted
-          a(href=route('editTask', { id: task.id }))= t('views.tasks.actions.edit')
-
-          form(action=route('deleteTask', { id: task.id }), method='post')
-            input(name='_method', type='hidden', value='delete')
-            input.btn.btn-link(type='submit', value= t('views.tasks.actions.delete'))
+      .d-flex.flex-wrap.gap-2
+        a.btn.btn-sm.btn-outline-light(href=route('editTask', { id: task.id }))= t('views.tasks.actions.edit')
+        form.d-inline(action=route('deleteTask', { id: task.id }), method='post')
+          input(name='_method', type='hidden', value='delete')
+          input.btn.btn-sm.btn-outline-danger(type='submit', value= t('views.tasks.actions.delete'))

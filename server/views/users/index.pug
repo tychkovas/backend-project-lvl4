@@ -20,7 +20,8 @@ block content
           td= user.email
           td= formatDate(user.createdAt)
           td
-            a(href=route('openForEditUser', { id: user.id }))= t('views.users.actions.edit')
-            form(action=route('deleteUser', { id: user.id }), method='post')
-              input(name='_method', type='hidden', value='delete')
-              input.btn.btn-link(type='submit', value= t('views.users.actions.delete'))
+            .d-flex.flex-wrap.gap-2.justify-content-center
+              a.btn.btn-sm.btn-outline-light(href=route('openForEditUser', { id: user.id }))= t('views.users.actions.edit')
+              form.d-inline(action=route('deleteUser', { id: user.id }), method='post')
+                input(name='_method', type='hidden', value='delete')
+                input.btn.btn-sm.btn-outline-danger(type='submit', value= t('views.users.actions.delete'))

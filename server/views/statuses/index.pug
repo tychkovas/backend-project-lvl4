@@ -4,7 +4,8 @@ block header
   = t('views.statuses.heading')
 
 block content
-  a.nav-link(href=route('newStatus'))= t('views.statuses.actions.new')
+  .mb-3
+    a.btn.btn-primary(href=route('newStatus'))= t('views.statuses.actions.new')
   table.table.table-striped.table-dark
     thead
       tr
@@ -19,7 +20,8 @@ block content
           td= status.name
           td= formatDate(status.createdAt)
           td
-            a(href=`/statuses/${status.id}/edit`)= t('views.statuses.actions.edit')
-            form(action=`/statuses/${status.id}`, method='post')
-              input(name='_method', type='hidden', value='delete')
-              input.btn.btn-link(type='submit', value= t('views.statuses.actions.delete'))
+            .d-flex.flex-wrap.gap-2.justify-content-center
+              a.btn.btn-sm.btn-outline-light(href=`/statuses/${status.id}/edit`)= t('views.statuses.actions.edit')
+              form.d-inline(action=`/statuses/${status.id}`, method='post')
+                input(name='_method', type='hidden', value='delete')
+                input.btn.btn-sm.btn-outline-danger(type='submit', value= t('views.statuses.actions.delete'))

@@ -4,8 +4,8 @@ block header
   = t('views.tasks.heading')
 
 block content
-  a.nav-link(href=route('newTask'))= t('views.tasks.actions.new')
-  br
+  .mb-3
+    a.btn.btn-primary(href=route('newTask'))= t('views.tasks.actions.new')
   //- /tasks?status=&executor=&label=&isCreatorUser=on
   //- /tasks?status=2&label=4&executor=3
   +formFor()(action=route('tasks') method='get')
@@ -44,13 +44,14 @@ block content
         tr
           td= task.id
           td
-            a(href=route('showTask', { id:task.id }))= task.name
+            a.link-light(href=route('showTask', { id:task.id }))= task.name
           td= task.status.name
           td= task.creator.name
           td= (task.executor) ? task.executor.name : ''
           td= formatDate(task.createdAt)
           td
-            a(href=`/tasks/${task.id}/edit`)= t('views.tasks.actions.edit')
-            form(action=`/tasks/${task.id}`, method='post')
-              input(name='_method', type='hidden', value='delete')
-              input.btn.btn-link(type='submit', value= t('views.tasks.actions.delete'))
+            .d-flex.flex-wrap.gap-2.justify-content-center
+              a.btn.btn-sm.btn-outline-light(href=`/tasks/${task.id}/edit`)= t('views.tasks.actions.edit')
+              form.d-inline(action=`/tasks/${task.id}`, method='post')
+                input(name='_method', type='hidden', value='delete')
+                input.btn.btn-sm.btn-outline-danger(type='submit', value= t('views.tasks.actions.delete'))

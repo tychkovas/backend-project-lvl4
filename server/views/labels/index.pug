@@ -4,7 +4,8 @@ block header
   = t('views.labels.heading')
 
 block content
-  a.nav-link(href=route('newLabel'))= t('views.labels.actions.new')
+  .mb-3
+    a.btn.btn-primary(href=route('newLabel'))= t('views.labels.actions.new')
   table.table.table-striped.table-dark
     thead
       tr
@@ -19,7 +20,8 @@ block content
           td= label.name
           td= formatDate(label.createdAt)
           td
-            a(href=route('openForEditLabel', { id: label.id}))= t('views.labels.actions.edit')
-            form(action=route('deleteLabel', { id: label.id}), method='post')
-              input(name='_method', type='hidden', value='delete')
-              input.btn.btn-link(type='submit', value= t('views.labels.actions.delete'))
+            .d-flex.flex-wrap.gap-2.justify-content-center
+              a.btn.btn-sm.btn-outline-light(href=route('openForEditLabel', { id: label.id}))= t('views.labels.actions.edit')
+              form.d-inline(action=route('deleteLabel', { id: label.id}), method='post')
+                input(name='_method', type='hidden', value='delete')
+                input.btn.btn-sm.btn-outline-danger(type='submit', value= t('views.labels.actions.delete'))
